@@ -227,6 +227,23 @@ Or with Docker:
 docker run -d -p 8080:8080 -v $PWD/config.yml:/app/config.yml:ro dujiaonext/dujiao-next:latest
 ```
 
+### Docker Compose
+
+The root `docker-compose.yml` builds the application from the current checkout's `Dockerfile`
+and starts PostgreSQL, Redis, the API, and both embedded SPAs:
+
+```bash
+docker compose up -d --build
+docker compose ps
+docker compose logs -f dujiao-next
+```
+
+The application listens on `127.0.0.1:${APP_PORT}`. Runtime credentials are read from `.env`,
+application configuration from `config/config.yml`, and persistent files from `data/`.
+These paths contain secrets or runtime data and are intentionally excluded from Git and the
+Docker build context. Stop the stack with `docker compose down`; bind-mounted data remains in
+`data/`.
+
 ## Quick Start (Develop)
 
 Run the backend and the two frontends separately for hot reload:
@@ -241,6 +258,22 @@ cd frontend/admin && pnpm install && pnpm run dev   # :5174
 Both dev servers proxy `/api`, `/uploads`, `/sitemap.xml`, and `/robots.txt` to
 `localhost:8080`. In production everything is same-origin, so these proxies are a
 development-only concern.
+
+## Optional Cap CAPTCHA
+
+Cap is deployed as a separate service. Follow the [Cap Standalone guide](https://trycap.dev/guide/standalone/)
+to run the Cap container with Valkey/Redis, expose it through an HTTPS hostname, and create a
+site key. Configure `CORS_ORIGIN` on Cap to allow the storefront and admin origins.
+
+In Dujiao-Next, open **Settings -> CAPTCHA**, select `Cap`, then configure:
+
+- **Server endpoint**: the public Cap base URL, for example `https://cap.example.com`;
+- **Site Key**: the public key created in the Cap dashboard;
+- **Site Secret Key**: the site key secret, not Cap's dashboard `ADMIN_KEY`.
+
+The browser uses `https://cap.example.com/<site-key>/`; Dujiao-Next verifies the returned token
+server-side through Cap's `/siteverify` endpoint. The secret is never included in public config.
+The same values can be supplied through the `captcha.cap` section in `config.yml`.
 
 > Use `pnpm` via corepack. `pnpm --dir X` does not read the `packageManager` field of the
 > target directory and will pick the wrong version — `cd` into the package first.

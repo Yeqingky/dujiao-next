@@ -14,3 +14,8 @@ type SettingReader interface {
 type TurnstileVerifier interface {
 	Verify(cfg settingssecurity.CaptchaTurnstileSetting, token, clientIP string) error
 }
+
+// CapVerifier 是应用层校验 Cap Standalone 令牌所需的端口。
+type CapVerifier interface {
+	Verify(cfg settingssecurity.CaptchaCapSetting, token, clientIP string) error
+}

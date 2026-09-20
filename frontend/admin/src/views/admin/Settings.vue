@@ -267,6 +267,13 @@ const captchaData = reactive({
     verify_url: 'https://challenges.cloudflare.com/turnstile/v0/siteverify',
     timeout_ms: 2000,
   },
+  cap: {
+    endpoint: '',
+    site_key: '',
+    secret_key: '',
+    has_secret: false,
+    timeout_ms: 2000,
+  },
 })
 
 const telegramForm = reactive({
@@ -515,6 +522,13 @@ const fetchSettings = async () => {
       captchaData.turnstile.has_secret = !!captchaTurnstile?.has_secret
       captchaData.turnstile.verify_url = String(captchaTurnstile?.verify_url || 'https://challenges.cloudflare.com/turnstile/v0/siteverify')
       captchaData.turnstile.timeout_ms = normalizeNumber(captchaTurnstile?.timeout_ms, 2000)
+
+      const captchaCap = captcha.cap as Record<string, unknown> | undefined
+      captchaData.cap.endpoint = String(captchaCap?.endpoint || '')
+      captchaData.cap.site_key = String(captchaCap?.site_key || '')
+      captchaData.cap.secret_key = ''
+      captchaData.cap.has_secret = !!captchaCap?.has_secret
+      captchaData.cap.timeout_ms = normalizeNumber(captchaCap?.timeout_ms, 2000)
     }
 
     if (telegramRes.data && telegramRes.data.data) {

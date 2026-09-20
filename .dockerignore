@@ -9,6 +9,9 @@ db/
 uploads/
 logs/
 config.yml
+.env
+config/
+data/
 *.db
 *.log
 

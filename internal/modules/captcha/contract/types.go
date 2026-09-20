@@ -5,6 +5,7 @@ type VerifyPayload struct {
 	CaptchaID      string
 	CaptchaCode    string
 	TurnstileToken string
+	CapToken       string
 }
 
 // ImageChallenge 是图片验证码挑战。

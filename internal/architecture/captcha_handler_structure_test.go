@@ -12,14 +12,17 @@ func TestPublicCaptchaHTTPLivesInTransport(t *testing.T) {
 	applicationRoot := filepath.Join(moduleRoot, "application")
 	contractRoot := filepath.Join(moduleRoot, "contract")
 	turnstileRoot := filepath.Join(moduleRoot, "infrastructure", "turnstile")
+	capRoot := filepath.Join(moduleRoot, "infrastructure", "cap")
 	transportRoot := filepath.Join(moduleRoot, "transport", "http")
 
 	assertFileDeclaresTypes(t, filepath.Join(applicationRoot, "service.go"), []string{"Service"})
 	assertFileDeclaresFunctions(t, filepath.Join(applicationRoot, "service.go"), []string{"NewService"})
-	assertFileDeclaresTypes(t, filepath.Join(contractRoot, "ports.go"), []string{"SettingReader", "TurnstileVerifier"})
+	assertFileDeclaresTypes(t, filepath.Join(contractRoot, "ports.go"), []string{"SettingReader", "TurnstileVerifier", "CapVerifier"})
 	assertFileDeclaresTypes(t, filepath.Join(contractRoot, "types.go"), []string{"VerifyPayload", "ImageChallenge"})
 	assertFileDeclaresTypes(t, filepath.Join(turnstileRoot, "client.go"), []string{"Client"})
 	assertFileDeclaresFunctions(t, filepath.Join(turnstileRoot, "client.go"), []string{"New"})
+	assertFileDeclaresTypes(t, filepath.Join(capRoot, "client.go"), []string{"Client"})
+	assertFileDeclaresFunctions(t, filepath.Join(capRoot, "client.go"), []string{"New"})
 	assertFileDeclaresFunctions(t, filepath.Join(transportRoot, "routes.go"), []string{"RegisterPublicRoutes"})
 	assertFileDeclaresTypes(t, filepath.Join(transportRoot, "public_handler.go"), []string{
 		"PublicHandler", "ImageChallengeGenerator",
@@ -31,6 +34,7 @@ func TestPublicCaptchaHTTPLivesInTransport(t *testing.T) {
 	assertDirectoryGoFileBudget(t, applicationRoot, 2)
 	assertDirectoryGoFileBudget(t, contractRoot, 4)
 	assertDirectoryGoFileBudget(t, turnstileRoot, 3)
+	assertDirectoryGoFileBudget(t, capRoot, 3)
 	assertDirectoryGoFileBudget(t, transportRoot, 6)
 	assertProductionImportsAbsent(t, applicationRoot, "net/http")
 	assertProductionImportsAbsent(t, applicationRoot, "net/url")

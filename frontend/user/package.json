@@ -22,6 +22,7 @@
     "@tiptap/vue-3": "^2.27.2",
     "@unhead/vue": "^2.1.4",
     "@vueuse/core": "^14.3.0",
+    "cap-widget": "0.1.57",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dompurify": "^3.4.0",

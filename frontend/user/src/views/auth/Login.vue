@@ -176,6 +176,13 @@
               v-model="turnstileToken"
               :site-key="turnstileSiteKey"
             />
+            <CapCaptcha
+              v-else-if="captchaProvider === 'cap'"
+              ref="capCaptchaRef"
+              v-model="capToken"
+              :endpoint="capEndpoint"
+              :disabled="userAuthStore.loading"
+            />
           </div>
 
           <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
@@ -275,6 +282,7 @@
 <script setup lang="ts">
 import ImageCaptcha from '../../components/captcha/ImageCaptcha.vue'
 import TurnstileCaptcha from '../../components/captcha/TurnstileCaptcha.vue'
+import CapCaptcha from '../../components/captcha/CapCaptcha.vue'
 import FormField from '../../components/FormField.vue'
 import GoogleIdentityButton from '../../components/auth/GoogleIdentityButton.vue'
 import { useI18n } from 'vue-i18n'
@@ -293,8 +301,8 @@ const {
   email, password, showPassword, rememberMe,
   step, totpMode, totpCode, recoveryCode, challengeRemainingSeconds, handleVerify2FA, cancel2FA,
   error, info, formValidation,
-  loginCaptchaEnabled, captchaProvider, captchaPayload, turnstileToken, turnstileSiteKey,
-  imageCaptchaRef, turnstileRef, handleCaptchaConfigStale,
+  loginCaptchaEnabled, captchaProvider, captchaPayload, turnstileToken, capToken, turnstileSiteKey, capEndpoint,
+  imageCaptchaRef, turnstileRef, capCaptchaRef, handleCaptchaConfigStale,
   registrationEnabled, emailVerificationEnabled,
   showTelegramWidget, telegramWidgetRef, showTelegramOidc, startTelegramOidc,
   showMiniAppLoginHint, attemptingMiniAppLogin, showTelegramMiniAppEntry, openTelegramMiniAppEntry,
@@ -308,5 +316,6 @@ const {
 // vue-tsc 不将字符串模板 ref 计为使用，这里显式标记避免 noUnusedLocals 误报。
 void imageCaptchaRef
 void turnstileRef
+void capCaptchaRef
 void telegramWidgetRef
 </script>
