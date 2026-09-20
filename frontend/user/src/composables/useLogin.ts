@@ -23,6 +23,7 @@ import {
 } from '../utils/googleRedirect'
 import ImageCaptcha from '../components/captcha/ImageCaptcha.vue'
 import TurnstileCaptcha from '../components/captcha/TurnstileCaptcha.vue'
+import CapCaptcha from '../components/captcha/CapCaptcha.vue'
 import { useFormValidation } from './useFormValidation'
 
 /**
@@ -68,14 +69,21 @@ export function useLogin() {
   const info = ref('')
   const captchaPayload = ref<CaptchaPayload>({})
   const turnstileToken = ref('')
+  const capToken = ref('')
   const imageCaptchaRef = ref<InstanceType<typeof ImageCaptcha> | null>(null)
   const turnstileRef = ref<InstanceType<typeof TurnstileCaptcha> | null>(null)
+  const capCaptchaRef = ref<InstanceType<typeof CapCaptcha> | null>(null)
   const telegramWidgetRef = ref<HTMLDivElement | null>(null)
 
   const captchaConfig = computed(() => appStore.config?.captcha || null)
   const captchaProvider = computed(() => String(captchaConfig.value?.provider || 'none'))
   const loginCaptchaEnabled = computed(() => !!captchaConfig.value?.scenes?.login && captchaProvider.value !== 'none')
   const turnstileSiteKey = computed(() => String(captchaConfig.value?.turnstile?.site_key || ''))
+  const capEndpoint = computed(() => {
+    const endpoint = String(captchaConfig.value?.cap?.endpoint || '').replace(/\/+$/, '')
+    const siteKey = String(captchaConfig.value?.cap?.site_key || '').trim()
+    return endpoint && siteKey ? `${endpoint}/${encodeURIComponent(siteKey)}/` : ''
+  })
   const telegramConfig = computed(() => appStore.config?.telegram_auth || null)
   const telegramBotUsername = computed(() => String(telegramConfig.value?.bot_username || '').trim())
   const telegramMiniAppURL = computed(() => String(telegramConfig.value?.mini_app_url || '').trim())
@@ -129,6 +137,11 @@ export function useLogin() {
         turnstile_token: turnstileToken.value,
       }
     }
+    if (captchaProvider.value === 'cap') {
+      return {
+        cap_token: capToken.value,
+      }
+    }
     return undefined
   }
 
@@ -136,6 +149,8 @@ export function useLogin() {
     await appStore.loadConfig(true)
     captchaPayload.value = {}
     turnstileToken.value = ''
+    capCaptchaRef.value?.reset()
+    capToken.value = ''
   }
 
   const redirectAfterLogin = () => {
@@ -165,6 +180,12 @@ export function useLogin() {
         return
       }
     }
+    if (loginCaptchaEnabled.value && captchaProvider.value === 'cap') {
+      if (!capToken.value) {
+        error.value = t('auth.common.captchaRequired')
+        return
+      }
+    }
 
     try {
       const result = await userAuthStore.login({
@@ -173,6 +194,10 @@ export function useLogin() {
         remember_me: rememberMe.value,
         captcha_payload: getCaptchaPayload(),
       })
+      if (captchaProvider.value === 'cap') {
+        capCaptchaRef.value?.reset()
+        capToken.value = ''
+      }
       if (result && result.requiresTotp) {
         enter2FAStep()
         return
@@ -186,6 +211,10 @@ export function useLogin() {
       if (captchaProvider.value === 'turnstile') {
         turnstileRef.value?.reset()
         turnstileToken.value = ''
+      }
+      if (captchaProvider.value === 'cap') {
+        capCaptchaRef.value?.reset()
+        capToken.value = ''
       }
     }
   }
@@ -497,9 +526,12 @@ export function useLogin() {
     captchaProvider,
     captchaPayload,
     turnstileToken,
+    capToken,
     turnstileSiteKey,
+    capEndpoint,
     imageCaptchaRef,
     turnstileRef,
+    capCaptchaRef,
     handleCaptchaConfigStale,
     // flags
     registrationEnabled,

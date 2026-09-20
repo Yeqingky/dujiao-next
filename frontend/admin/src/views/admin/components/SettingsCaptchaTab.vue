@@ -35,6 +35,13 @@ interface CaptchaData {
     verify_url: string
     timeout_ms: number
   }
+  cap: {
+    endpoint: string
+    site_key: string
+    secret_key: string
+    has_secret: boolean
+    timeout_ms: number
+  }
 }
 
 const props = defineProps<{
@@ -72,6 +79,13 @@ const form = reactive({
     verify_url: 'https://challenges.cloudflare.com/turnstile/v0/siteverify',
     timeout_ms: 2000,
   },
+  cap: {
+    endpoint: '',
+    site_key: '',
+    secret_key: '',
+    has_secret: false,
+    timeout_ms: 2000,
+  },
 })
 
 const syncFromProps = () => {
@@ -83,6 +97,11 @@ const syncFromProps = () => {
   form.turnstile.has_secret = props.data.turnstile.has_secret
   form.turnstile.verify_url = props.data.turnstile.verify_url
   form.turnstile.timeout_ms = props.data.turnstile.timeout_ms
+  form.cap.endpoint = props.data.cap.endpoint
+  form.cap.site_key = props.data.cap.site_key
+  form.cap.secret_key = props.data.cap.secret_key
+  form.cap.has_secret = props.data.cap.has_secret
+  form.cap.timeout_ms = props.data.cap.timeout_ms
 }
 
 syncFromProps()
@@ -123,6 +142,11 @@ const save = async () => {
         verify_url: form.turnstile.verify_url,
         timeout_ms: Number(form.turnstile.timeout_ms),
       },
+      cap: {
+        endpoint: form.cap.endpoint,
+        site_key: form.cap.site_key,
+        timeout_ms: Number(form.cap.timeout_ms),
+      },
     }
 
     if (form.turnstile.secret_key.trim() !== '') {
@@ -131,12 +155,21 @@ const save = async () => {
         secret_key: form.turnstile.secret_key.trim(),
       }
     }
+    if (form.cap.secret_key.trim() !== '') {
+      payload.cap = {
+        ...(payload.cap as Record<string, unknown>),
+        secret_key: form.cap.secret_key.trim(),
+      }
+    }
 
     const res = await adminAPI.updateCaptchaSettings(payload)
     const data = res.data?.data as Record<string, unknown> | undefined
     form.turnstile.secret_key = ''
+    form.cap.secret_key = ''
     const resTurnstile = data?.turnstile as Record<string, unknown> | undefined
     form.turnstile.has_secret = !!resTurnstile?.has_secret || form.turnstile.has_secret
+    const resCap = data?.cap as Record<string, unknown> | undefined
+    form.cap.has_secret = !!resCap?.has_secret || form.cap.has_secret
     notifySuccess(t('admin.settings.alerts.saveSuccess'))
     emit('saved')
   } catch (err) {
@@ -168,6 +201,7 @@ defineExpose({ save, submitting })
               <SelectItem value="none">{{ t('admin.settings.captcha.providerNone') }}</SelectItem>
               <SelectItem value="image">{{ t('admin.settings.captcha.providerImage') }}</SelectItem>
               <SelectItem value="turnstile">{{ t('admin.settings.captcha.providerTurnstile') }}</SelectItem>
+              <SelectItem value="cap">{{ t('admin.settings.captcha.providerCap') }}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -230,6 +264,34 @@ defineExpose({ save, submitting })
             <div class="space-y-2">
               <label class="text-xs font-medium text-muted-foreground">{{ t('admin.settings.captcha.image.maxStore') }}</label>
               <Input v-model.number="form.image.max_store" type="number" min="100" />
+            </div>
+          </div>
+        </div>
+
+        <div v-if="form.provider === 'cap'" class="rounded-xl border border-border">
+          <div class="border-b border-border bg-muted/30 px-4 py-3">
+            <h3 class="text-sm font-semibold">{{ t('admin.settings.captcha.cap.title') }}</h3>
+          </div>
+          <div class="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
+            <div class="space-y-2 md:col-span-2">
+              <label class="text-xs font-medium text-muted-foreground">{{ t('admin.settings.captcha.cap.endpoint') }}</label>
+              <Input v-model="form.cap.endpoint" :placeholder="t('admin.settings.captcha.cap.endpointPlaceholder')" />
+              <p class="text-xs text-muted-foreground">{{ t('admin.settings.captcha.cap.endpointHint') }}</p>
+            </div>
+            <div class="space-y-2 md:col-span-2">
+              <label class="text-xs font-medium text-muted-foreground">{{ t('admin.settings.captcha.cap.siteKey') }}</label>
+              <Input v-model="form.cap.site_key" />
+            </div>
+            <div class="space-y-2 md:col-span-2">
+              <label class="text-xs font-medium text-muted-foreground">{{ t('admin.settings.captcha.cap.secretKey') }}</label>
+              <Input v-model="form.cap.secret_key" type="password" :placeholder="t('admin.settings.captcha.cap.secretKeyPlaceholder')" />
+              <p class="text-xs text-muted-foreground">
+                {{ form.cap.has_secret ? t('admin.settings.captcha.cap.secretHintKeep') : t('admin.settings.captcha.cap.secretHintEmpty') }}
+              </p>
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-medium text-muted-foreground">{{ t('admin.settings.captcha.cap.timeoutMS') }}</label>
+              <Input v-model.number="form.cap.timeout_ms" type="number" min="500" max="10000" />
             </div>
           </div>
         </div>

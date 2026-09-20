@@ -49,6 +49,13 @@
               v-model="turnstileToken"
               :site-key="turnstileSiteKey"
             />
+            <CapCaptcha
+              v-else-if="captchaProvider === 'cap'"
+              ref="capCaptchaRef"
+              v-model="capToken"
+              :endpoint="capEndpoint"
+              :disabled="sending || countdown > 0"
+            />
           </div>
 
           <!-- 验证码 -->
@@ -95,6 +102,7 @@ import { useI18n } from 'vue-i18n'
 import { ArrowLeft, Mail, ShieldCheck, KeyRound, RotateCw } from 'lucide-vue-next'
 import ImageCaptcha from '../../../components/captcha/ImageCaptcha.vue'
 import TurnstileCaptcha from '../../../components/captcha/TurnstileCaptcha.vue'
+import CapCaptcha from '../../../components/captcha/CapCaptcha.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -107,12 +115,13 @@ const { t } = useI18n()
 const {
   userAuthStore, brandSiteName, emailVerificationEnabled,
   email, code, newPassword, error, sending, countdown,
-  captchaPayload, turnstileToken, imageCaptchaRef, turnstileRef,
-  captchaProvider, sendCodeCaptchaEnabled, turnstileSiteKey,
+  captchaPayload, turnstileToken, capToken, imageCaptchaRef, turnstileRef, capCaptchaRef,
+  captchaProvider, sendCodeCaptchaEnabled, turnstileSiteKey, capEndpoint,
   handleCaptchaConfigStale, handleSendCode, handleReset,
 } = useForgot()
 
 // imageCaptchaRef / turnstileRef 仅通过字符串模板 ref 绑定，显式标记避免 noUnusedLocals 误报。
 void imageCaptchaRef
 void turnstileRef
+void capCaptchaRef
 </script>

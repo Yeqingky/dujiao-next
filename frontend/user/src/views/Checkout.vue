@@ -154,6 +154,13 @@
                 v-model="guestTurnstileToken"
                 :site-key="guestTurnstileSiteKey"
               />
+              <CapCaptcha
+                v-else-if="captchaProvider === 'cap'"
+                ref="guestCapCaptchaRef"
+                v-model="guestCapToken"
+                :endpoint="guestCapEndpoint"
+                :disabled="submitting"
+              />
             </div>
 
             <div v-if="checkoutMode === 'guest'" class="mb-3 rounded-xl border border-success/40 bg-success/10 p-3 text-sm text-success">
@@ -315,6 +322,7 @@ import { useI18n } from 'vue-i18n'
 import { pageAlertVariant, pageAlertToneClass } from '../utils/alerts'
 import ImageCaptcha from '../components/captcha/ImageCaptcha.vue'
 import TurnstileCaptcha from '../components/captcha/TurnstileCaptcha.vue'
+import CapCaptcha from '../components/captcha/CapCaptcha.vue'
 import CheckoutManualForm from '../components/checkout/CheckoutManualForm.vue'
 import EmptyState from '../components/EmptyState.vue'
 import SmartImage from '../components/SmartImage.vue'
@@ -334,8 +342,8 @@ const {
   manualFormProducts, manualFormData, submitAttempted, getManualFieldLabel, getManualFieldPlaceholder, manualFieldError,
   couponCode, isResellerTenant,
   checkoutMode, guestEmail, guestPassword, guestEmailValid,
-  guestCaptchaEnabled, captchaProvider, guestCaptchaPayload, guestTurnstileToken, guestTurnstileSiteKey,
-  guestImageCaptchaRef, guestTurnstileRef, handleGuestCaptchaConfigStale,
+  guestCaptchaEnabled, captchaProvider, guestCaptchaPayload, guestTurnstileToken, guestCapToken, guestTurnstileSiteKey, guestCapEndpoint,
+  guestImageCaptchaRef, guestTurnstileRef, guestCapCaptchaRef, handleGuestCaptchaConfigStale,
   previewCurrency, previewOriginal, previewCoupon, previewPromotion, previewWholesale, previewMemberDiscount, previewTotal,
   previewLoading, couponRefreshing, previewStatusText, hasPositiveAmount, formatDiscountPrice, checkoutAlert,
   showBalanceOption, walletLoading, walletBalance, useBalance, walletOnlyPayment,
@@ -349,4 +357,5 @@ const {
 // vue-tsc 不将字符串模板 ref 计为使用，这里显式标记避免 noUnusedLocals 误报。
 void guestImageCaptchaRef
 void guestTurnstileRef
+void guestCapCaptchaRef
 </script>

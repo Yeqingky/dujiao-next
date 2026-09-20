@@ -11,6 +11,7 @@ import { adminAPI, type CaptchaPayload } from '@/api/admin'
 import { applySiteIcon } from '@/utils/favicon'
 import ImageCaptcha from '@/components/captcha/ImageCaptcha.vue'
 import TurnstileCaptcha from '@/components/captcha/TurnstileCaptcha.vue'
+import CapCaptcha from '@/components/captcha/CapCaptcha.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -29,8 +30,10 @@ const loadingCaptcha = ref(false)
 const captchaConfig = ref<any>(null)
 const captchaPayload = ref<CaptchaPayload>({})
 const turnstileToken = ref('')
+const capToken = ref('')
 const imageCaptchaRef = ref<InstanceType<typeof ImageCaptcha> | null>(null)
 const turnstileRef = ref<InstanceType<typeof TurnstileCaptcha> | null>(null)
+const capCaptchaRef = ref<InstanceType<typeof CapCaptcha> | null>(null)
 
 const captchaProvider = computed(() => String(captchaConfig.value?.provider || 'none'))
 const loginCaptchaEnabled = computed(() => {
@@ -38,6 +41,11 @@ const loginCaptchaEnabled = computed(() => {
   return loginScene && captchaProvider.value !== 'none'
 })
 const turnstileSiteKey = computed(() => String(captchaConfig.value?.turnstile?.site_key || ''))
+const capEndpoint = computed(() => {
+  const endpoint = String(captchaConfig.value?.cap?.endpoint || '').replace(/\/+$/, '')
+  const siteKey = String(captchaConfig.value?.cap?.site_key || '').trim()
+  return endpoint && siteKey ? `${endpoint}/${encodeURIComponent(siteKey)}/` : ''
+})
 
 const challengeRemaining = ref(0)
 let countdownTimer: ReturnType<typeof setInterval> | null = null
@@ -79,6 +87,9 @@ const getCaptchaPayload = (): CaptchaPayload | undefined => {
   if (captchaProvider.value === 'turnstile') {
     return { turnstile_token: turnstileToken.value }
   }
+  if (captchaProvider.value === 'cap') {
+    return { cap_token: capToken.value }
+  }
   return undefined
 }
 
@@ -96,12 +107,22 @@ const submitPassword = async () => {
       return
     }
   }
+  if (loginCaptchaEnabled.value && captchaProvider.value === 'cap') {
+    if (!capToken.value) {
+      error.value = t('admin.login.captchaRequired')
+      return
+    }
+  }
   try {
     const res = await authStore.login({
       username: username.value.trim(),
       password: password.value,
       captcha_payload: getCaptchaPayload(),
     })
+    if (captchaProvider.value === 'cap') {
+      capCaptchaRef.value?.reset()
+      capToken.value = ''
+    }
     if (res.requiresTotp) {
       step.value = 'totp'
       totpCode.value = ''
@@ -117,6 +138,10 @@ const submitPassword = async () => {
     if (captchaProvider.value === 'turnstile') {
       turnstileRef.value?.reset()
       turnstileToken.value = ''
+    }
+    if (captchaProvider.value === 'cap') {
+      capCaptchaRef.value?.reset()
+      capToken.value = ''
     }
   }
 }
@@ -222,6 +247,13 @@ onUnmounted(() => {
                 ref="turnstileRef"
                 v-model="turnstileToken"
                 :site-key="turnstileSiteKey"
+              />
+              <CapCaptcha
+                v-else-if="captchaProvider === 'cap'"
+                ref="capCaptchaRef"
+                v-model="capToken"
+                :endpoint="capEndpoint"
+                :disabled="authStore.loading || loadingCaptcha"
               />
             </div>
 

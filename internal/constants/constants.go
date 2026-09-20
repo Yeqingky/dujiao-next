@@ -342,6 +342,7 @@ const (
 	CaptchaProviderNone      = "none"
 	CaptchaProviderImage     = "image"
 	CaptchaProviderTurnstile = "turnstile"
+	CaptchaProviderCap       = "cap"
 )
 
 // 验证码校验场景常量

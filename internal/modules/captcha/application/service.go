@@ -26,6 +26,7 @@ type Service struct {
 	settingService contract.SettingReader
 	defaultConfig  config.CaptchaConfig
 	turnstile      contract.TurnstileVerifier
+	cap            contract.CapVerifier
 	cacheTTL       time.Duration
 
 	mu            sync.RWMutex
@@ -38,11 +39,17 @@ type Service struct {
 }
 
 // NewService 创建验证码服务。
-func NewService(settingService contract.SettingReader, defaultConfig config.CaptchaConfig, turnstile contract.TurnstileVerifier) *Service {
+func NewService(
+	settingService contract.SettingReader,
+	defaultConfig config.CaptchaConfig,
+	turnstile contract.TurnstileVerifier,
+	capVerifier contract.CapVerifier,
+) *Service {
 	return &Service{
 		settingService: settingService,
 		defaultConfig:  defaultConfig,
 		turnstile:      turnstile,
+		cap:            capVerifier,
 		cacheTTL:       30 * time.Second,
 	}
 }
@@ -143,6 +150,15 @@ func (s *Service) Verify(scene string, payload contract.VerifyPayload, clientIP 
 			return contract.ErrVerifyFailed
 		}
 		return s.turnstile.Verify(setting.Turnstile, token, strings.TrimSpace(clientIP))
+	case constants.CaptchaProviderCap:
+		token := strings.TrimSpace(payload.CapToken)
+		if token == "" {
+			return contract.ErrRequired
+		}
+		if s.cap == nil {
+			return contract.ErrVerifyFailed
+		}
+		return s.cap.Verify(setting.Cap, token, strings.TrimSpace(clientIP))
 	case constants.CaptchaProviderNone:
 		return contract.ErrConfigInvalid
 	default:

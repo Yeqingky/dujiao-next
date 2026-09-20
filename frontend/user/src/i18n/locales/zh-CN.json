@@ -951,6 +951,18 @@
       "captchaRefresh": "换一张",
       "captchaRefreshing": "刷新中...",
       "captchaCodePlaceholder": "请输入图片验证码",
+      "cap": {
+        "initial": "验证你是人类",
+        "verifying": "验证中...",
+        "solved": "验证完成",
+        "error": "验证失败",
+        "verifyAria": "点击验证你是人类",
+        "verifyingAria": "正在验证，请稍候",
+        "verifiedAria": "已验证",
+        "wasmDisabled": "请启用 WASM 以加快验证",
+        "required": "请完成验证",
+        "errorAria": "验证失败，请重试"
+      },
       "showPassword": "显示密码",
       "hidePassword": "隐藏密码"
     },

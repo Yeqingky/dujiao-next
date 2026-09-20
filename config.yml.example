@@ -159,6 +159,22 @@ email:
     max_attempts: 5
     length: 6
 
+captcha:
+  # none / image / turnstile / cap
+  provider: none
+  scenes:
+    login: false
+    register_send_code: false
+    reset_send_code: false
+    guest_create_order: false
+    gift_card_redeem: false
+  cap:
+    # Cap Standalone instance base URL, without the site key path.
+    endpoint: "https://cap.example.com"
+    site_key: ""
+    secret_key: ""
+    timeout_ms: 2000
+
 order:
   payment_expire_minutes: 15
   max_refund_days: 30

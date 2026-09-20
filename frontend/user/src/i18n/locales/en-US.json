@@ -998,6 +998,18 @@
       "captchaRefresh": "Refresh",
       "captchaRefreshing": "Refreshing...",
       "captchaCodePlaceholder": "Enter the image captcha",
+      "cap": {
+        "initial": "Verify you're human",
+        "verifying": "Verifying...",
+        "solved": "Verification complete",
+        "error": "Verification failed",
+        "verifyAria": "Click to verify you're human",
+        "verifyingAria": "Verifying, please wait",
+        "verifiedAria": "Verified",
+        "wasmDisabled": "Enable WASM for faster verification",
+        "required": "Please complete verification",
+        "errorAria": "Verification failed, please try again"
+      },
       "showPassword": "Show password",
       "hidePassword": "Hide password"
     },

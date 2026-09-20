@@ -53,6 +53,9 @@ importers:
       '@vueuse/core':
         specifier: ^14.2.1
         version: 14.2.1(vue@3.5.27(typescript@5.9.3))
+      cap-widget:
+        specifier: 0.1.57
+        version: 0.1.57
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1030,6 +1033,9 @@ packages:
 
   caniuse-lite@1.0.30001769:
     resolution: {integrity: sha512-BCfFL1sHijQlBGWBMuJyhZUhzo7wer5sVj9hqekB/7xn0Ypy+pER/edCYQm4exbXj4WiySGp40P8UuTh6w1srg==}
+
+  cap-widget@0.1.57:
+    resolution: {integrity: sha512-SyIK5XgYIFSDgH683M9KpfBmDSDB0ZfPZQBxL6MggNrjjnbIQYpbsNpj0S7PC/wXp7oJgAuBD2vtJnN9jJghBg==}
 
   chai@5.3.3:
     resolution: {integrity: sha512-4zNhdJD/iOjSH0A05ea+Ke6MU5mmpQcbQsSOkgdaUMJ9zTlDTD/GYlwohmIE2u0gaxHYiVHEn1Fw9mZ/ktJWgw==}
@@ -2678,6 +2684,8 @@ snapshots:
   camelcase@5.3.1: {}
 
   caniuse-lite@1.0.30001769: {}
+
+  cap-widget@0.1.57: {}
 
   chai@5.3.3:
     dependencies:

@@ -16,6 +16,7 @@ import { getAffiliateCode, getAffiliateVisitorKey } from '../utils/affiliate'
 import { saveGuestOrderAuth } from '../utils/guestOrderAuth'
 import ImageCaptcha from '../components/captcha/ImageCaptcha.vue'
 import TurnstileCaptcha from '../components/captcha/TurnstileCaptcha.vue'
+import CapCaptcha from '../components/captcha/CapCaptcha.vue'
 import { useLocalized, useProductLabels } from './useProduct'
 
 interface ManualFormField {
@@ -277,8 +278,10 @@ export function useCheckout() {
   const guestPasswordValid = computed(() => guestPassword.value.trim().length >= GUEST_PASSWORD_MIN_LENGTH)
   const guestCaptchaPayload = ref<CaptchaPayload>({})
   const guestTurnstileToken = ref('')
+  const guestCapToken = ref('')
   const guestImageCaptchaRef = ref<InstanceType<typeof ImageCaptcha> | null>(null)
   const guestTurnstileRef = ref<InstanceType<typeof TurnstileCaptcha> | null>(null)
+  const guestCapCaptchaRef = ref<InstanceType<typeof CapCaptcha> | null>(null)
 
   const manualFieldTypes = new Set(['text', 'textarea', 'phone', 'email', 'number', 'select', 'radio', 'checkbox'])
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -555,6 +558,11 @@ export function useCheckout() {
     return !!captchaConfig.value?.scenes?.guest_create_order && captchaProvider.value !== 'none'
   })
   const guestTurnstileSiteKey = computed(() => String(captchaConfig.value?.turnstile?.site_key || ''))
+  const guestCapEndpoint = computed(() => {
+    const endpoint = String(captchaConfig.value?.cap?.endpoint || '').replace(/\/+$/, '')
+    const siteKey = String(captchaConfig.value?.cap?.site_key || '').trim()
+    return endpoint && siteKey ? `${endpoint}/${encodeURIComponent(siteKey)}/` : ''
+  })
 
   const getGuestCaptchaPayload = (): CaptchaPayload | undefined => {
     if (!guestCaptchaEnabled.value) return undefined
@@ -569,6 +577,11 @@ export function useCheckout() {
         turnstile_token: guestTurnstileToken.value,
       }
     }
+    if (captchaProvider.value === 'cap') {
+      return {
+        cap_token: guestCapToken.value,
+      }
+    }
     return undefined
   }
 
@@ -576,6 +589,8 @@ export function useCheckout() {
     await appStore.loadConfig(true)
     guestCaptchaPayload.value = {}
     guestTurnstileToken.value = ''
+    guestCapCaptchaRef.value?.reset()
+    guestCapToken.value = ''
   }
 
   const canSubmit = computed(() => {
@@ -597,6 +612,9 @@ export function useCheckout() {
     }
     if (captchaProvider.value === 'turnstile') {
       return Boolean(guestTurnstileToken.value)
+    }
+    if (captchaProvider.value === 'cap') {
+      return Boolean(guestCapToken.value)
     }
     return false
   })
@@ -628,6 +646,9 @@ export function useCheckout() {
         return t('auth.common.captchaRequired')
       }
       if (captchaProvider.value === 'turnstile' && !guestTurnstileToken.value) {
+        return t('auth.common.captchaRequired')
+      }
+      if (captchaProvider.value === 'cap' && !guestCapToken.value) {
         return t('auth.common.captchaRequired')
       }
     }
@@ -861,6 +882,10 @@ export function useCheckout() {
       if (guestCaptchaEnabled.value && captchaProvider.value === 'turnstile') {
         guestTurnstileRef.value?.reset()
         guestTurnstileToken.value = ''
+      }
+      if (guestCaptchaEnabled.value && captchaProvider.value === 'cap') {
+        guestCapCaptchaRef.value?.reset()
+        guestCapToken.value = ''
       }
     } finally {
       submitting.value = false
@@ -1142,9 +1167,12 @@ export function useCheckout() {
     captchaProvider,
     guestCaptchaPayload,
     guestTurnstileToken,
+    guestCapToken,
     guestTurnstileSiteKey,
+    guestCapEndpoint,
     guestImageCaptchaRef,
     guestTurnstileRef,
+    guestCapCaptchaRef,
     handleGuestCaptchaConfigStale,
     // preview amounts
     previewCurrency,

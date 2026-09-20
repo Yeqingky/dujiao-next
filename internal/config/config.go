@@ -173,6 +173,7 @@ type CaptchaConfig struct {
 	Scenes    CaptchaSceneConfig     `mapstructure:"scenes"`
 	Image     CaptchaImageConfig     `mapstructure:"image"`
 	Turnstile CaptchaTurnstileConfig `mapstructure:"turnstile"`
+	Cap       CaptchaCapConfig       `mapstructure:"cap"`
 }
 
 // CaptchaSceneConfig 验证码场景开关
@@ -200,6 +201,14 @@ type CaptchaTurnstileConfig struct {
 	SiteKey   string `mapstructure:"site_key"`
 	SecretKey string `mapstructure:"secret_key"`
 	VerifyURL string `mapstructure:"verify_url"`
+	TimeoutMS int    `mapstructure:"timeout_ms"`
+}
+
+// CaptchaCapConfig Cap Standalone 配置。
+type CaptchaCapConfig struct {
+	Endpoint  string `mapstructure:"endpoint"`
+	SiteKey   string `mapstructure:"site_key"`
+	SecretKey string `mapstructure:"secret_key"`
 	TimeoutMS int    `mapstructure:"timeout_ms"`
 }
 
@@ -421,6 +430,10 @@ func Load() *Config {
 	viper.SetDefault("captcha.turnstile.secret_key", "")
 	viper.SetDefault("captcha.turnstile.verify_url", "https://challenges.cloudflare.com/turnstile/v0/siteverify")
 	viper.SetDefault("captcha.turnstile.timeout_ms", 2000)
+	viper.SetDefault("captcha.cap.endpoint", "")
+	viper.SetDefault("captcha.cap.site_key", "")
+	viper.SetDefault("captcha.cap.secret_key", "")
+	viper.SetDefault("captcha.cap.timeout_ms", 2000)
 	viper.SetDefault("web.admin_path", "/admin")
 	viper.SetDefault("reseller.enabled", false)
 	viper.SetDefault("reseller.main_hosts", []string{"localhost", "127.0.0.1", "::1"})

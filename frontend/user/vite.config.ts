@@ -17,7 +17,13 @@ const cfAsyncModuleScriptPlugin = () => ({
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [
-    vue(),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag === 'cap-widget',
+        },
+      },
+    }),
     // 语言包 JSON 构建期预编译为 AST，运行时无需 message compiler（vue-i18n 走 runtime-only 构建）
     VueI18nPlugin({
       include: [resolve(dirname(fileURLToPath(import.meta.url)), 'src/i18n/locales/**')],

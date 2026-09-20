@@ -102,6 +102,13 @@
                 v-model="guestTurnstileToken"
                 :site-key="guestTurnstileSiteKey"
               />
+              <CapCaptcha
+                v-else-if="captchaProvider === 'cap'"
+                ref="guestCapCaptchaRef"
+                v-model="guestCapToken"
+                :endpoint="guestCapEndpoint"
+                :disabled="submitting"
+              />
             </div>
 
             <div class="mt-3.5 rounded-sm border border-[color:var(--teal-strong)] bg-[color:var(--teal-soft)] px-3.5 py-3 text-[13px] text-[color:var(--teal-strong)]">
@@ -205,6 +212,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import ImageCaptcha from '../../components/captcha/ImageCaptcha.vue'
 import TurnstileCaptcha from '../../components/captcha/TurnstileCaptcha.vue'
+import CapCaptcha from '../../components/captcha/CapCaptcha.vue'
 import CheckoutManualForm from '../../components/checkout/CheckoutManualForm.vue'
 import VaultCheckoutSteps from './components/VaultCheckoutSteps.vue'
 import { useCheckout } from '../../composables/useCheckout'
@@ -219,8 +227,8 @@ const {
   manualFormProducts, manualFormData, submitAttempted, getManualFieldLabel, getManualFieldPlaceholder, manualFieldError,
   couponCode, isResellerTenant,
   checkoutMode, guestEmail, guestPassword, guestEmailValid,
-  guestCaptchaEnabled, captchaProvider, guestCaptchaPayload, guestTurnstileToken, guestTurnstileSiteKey,
-  guestImageCaptchaRef, guestTurnstileRef, handleGuestCaptchaConfigStale,
+  guestCaptchaEnabled, captchaProvider, guestCaptchaPayload, guestTurnstileToken, guestCapToken, guestTurnstileSiteKey, guestCapEndpoint,
+  guestImageCaptchaRef, guestTurnstileRef, guestCapCaptchaRef, handleGuestCaptchaConfigStale,
   previewCurrency, previewOriginal, previewCoupon, previewPromotion, previewWholesale, previewMemberDiscount, previewTotal,
   previewLoading, couponRefreshing, previewStatusText, hasPositiveAmount, formatDiscountPrice, checkoutAlert,
   showBalanceOption, walletLoading, walletBalance, useBalance, walletOnlyPayment,
@@ -233,4 +241,5 @@ const {
 // 字符串模板 ref，逻辑在 composable 内，显式标记避免 noUnusedLocals 误报。
 void guestImageCaptchaRef
 void guestTurnstileRef
+void guestCapCaptchaRef
 </script>

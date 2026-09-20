@@ -1,11 +1,18 @@
 .vscode/
 config.yml
+
+# Docker Compose runtime data and deployment secrets
+config/
+data/
 .idea
-db
-uploads
+db/
+uploads/
+logs/
 *.db
 *.log
 .env
+.env.*
+!.env.example
 .DS_Store
 node_modules/
 # Added by goreleaser init:
