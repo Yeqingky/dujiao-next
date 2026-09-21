@@ -3,6 +3,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useUserAuthStore } from '../stores/userAuth'
 import { userProfileAPI } from '../api'
+import { normalizeAuthReturnPath } from '../utils/authRedirect'
 
 /** Shared callback logic for the generic OIDC login and binding flows. */
 export function useOIDCCallback() {
@@ -41,7 +42,7 @@ export function useOIDCCallback() {
         await router.replace({ path: '/auth/login', query })
         return
       }
-      await router.replace(savedRedirect || '/me/orders')
+      await router.replace(normalizeAuthReturnPath(savedRedirect))
     } catch (err: any) {
       errMsg.value = err?.message || t('auth.oidcCallback.failed')
       loading.value = false

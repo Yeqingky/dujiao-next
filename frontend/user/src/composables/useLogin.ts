@@ -8,6 +8,7 @@ import { useTelegramMiniAppStore } from '../stores/telegramMiniApp'
 import { buildTelegramMiniAppEntryLink, isTelegramUrlEnvironment, openTelegramCompatibleLink } from '../utils/telegramMiniApp'
 import { userAuthAPI } from '../api'
 import type { CaptchaPayload, TelegramAuthPayload } from '../api'
+import { normalizeAuthReturnPath } from '../utils/authRedirect'
 import {
   canShowGoogleIdentityButton,
   detectGoogleIdentityUXMode,
@@ -419,7 +420,7 @@ export function useLogin() {
     error.value = ''
     try {
       sessionStorage.setItem('oidc_intent', 'login')
-      const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''
+      const redirect = normalizeAuthReturnPath(route.query.redirect, '')
       if (redirect) {
         sessionStorage.setItem('oidc_redirect', redirect)
       } else {
