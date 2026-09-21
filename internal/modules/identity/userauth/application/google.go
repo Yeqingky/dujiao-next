@@ -14,6 +14,7 @@ import (
 	"github.com/dujiao-next/internal/constants"
 	externalidentitydomain "github.com/dujiao-next/internal/modules/identity/externalidentity/domain"
 	googleauthapp "github.com/dujiao-next/internal/modules/identity/googleauth/application"
+	oidcauthapp "github.com/dujiao-next/internal/modules/identity/oidcauth/application"
 	userdomain "github.com/dujiao-next/internal/modules/identity/user/domain"
 	settingsapp "github.com/dujiao-next/internal/modules/settings/application"
 
@@ -551,7 +552,8 @@ func (s *Service) isUsableExternalIdentity(identity *externalidentitydomain.Iden
 	if s == nil || identity == nil {
 		return false
 	}
-	switch strings.ToLower(strings.TrimSpace(identity.Provider)) {
+	provider := strings.ToLower(strings.TrimSpace(identity.Provider))
+	switch provider {
 	case constants.UserOAuthProviderGoogle:
 		if s.googleAuthService == nil {
 			return false
@@ -573,8 +575,12 @@ func (s *Service) isUsableExternalIdentity(identity *externalidentitydomain.Iden
 			strings.TrimSpace(username) != "" &&
 			(mode == "widget" || mode == "oidc")
 	default:
-		// Unknown providers are not assumed to be a usable recovery method.
-		return false
+		if s.oidcAuthService == nil || s.cfg == nil || provider != oidcauthapp.ProviderKey(s.cfg.OIDCAuth.IssuerURL) {
+			return false
+		}
+		public := s.oidcAuthService.PublicConfig()
+		enabled, _ := public["enabled"].(bool)
+		return enabled
 	}
 }
 

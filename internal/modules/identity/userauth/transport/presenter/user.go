@@ -44,6 +44,31 @@ func NewUserProfileResp(user *userdomain.User, emailMode, passwordMode string) U
 	// LastLoginAt、CreatedAt、UpdatedAt、DeletedAt
 }
 
+// OIDCBindingResp 通用 OIDC 绑定状态响应。
+type OIDCBindingResp struct {
+	Bound          bool       `json:"bound"`
+	Provider       string     `json:"provider,omitempty"`
+	ProviderUserID string     `json:"provider_user_id,omitempty"`
+	Username       string     `json:"username,omitempty"`
+	AvatarURL      string     `json:"avatar_url,omitempty"`
+	AuthAt         *time.Time `json:"auth_at,omitempty"`
+}
+
+// NewOIDCBindingResp 从外部身份领域实体构造响应。
+func NewOIDCBindingResp(identity *externalidentitydomain.Identity) OIDCBindingResp {
+	if identity == nil {
+		return OIDCBindingResp{}
+	}
+	return OIDCBindingResp{
+		Bound:          true,
+		Provider:       identity.Provider,
+		ProviderUserID: identity.ProviderUserID,
+		Username:       identity.Username,
+		AvatarURL:      identity.AvatarURL,
+		AuthAt:         identity.AuthAt,
+	}
+}
+
 // TelegramBindingResp Telegram 绑定状态响应
 type TelegramBindingResp struct {
 	Bound          bool       `json:"bound"`

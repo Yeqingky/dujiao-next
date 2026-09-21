@@ -27,6 +27,7 @@ import (
 	externalidentitycontract "github.com/dujiao-next/internal/modules/identity/externalidentity/contract"
 	googleauthapp "github.com/dujiao-next/internal/modules/identity/googleauth/application"
 	"github.com/dujiao-next/internal/modules/identity/jwttoken"
+	oidcauthapp "github.com/dujiao-next/internal/modules/identity/oidcauth/application"
 	"github.com/dujiao-next/internal/modules/identity/userauth/challenge"
 	"github.com/dujiao-next/internal/shared/mailbrand"
 
@@ -46,6 +47,7 @@ type Service struct {
 	emailBrandResolver    mailbrand.Resolver
 	telegramAuthService   *telegramauthapp.Service
 	googleAuthService     *googleauthapp.Service
+	oidcAuthService       *oidcauthapp.Service
 	googleRedirectStore   GoogleRedirectStore
 	memberLevelSvc        MemberLevelAssigner
 	authUnitOfWork        AuthUnitOfWork
@@ -63,6 +65,11 @@ func (s *Service) SetMemberLevelService(svc MemberLevelAssigner) {
 // SetGoogleAuthService injects the runtime-configurable Google credential verifier.
 func (s *Service) SetGoogleAuthService(service *googleauthapp.Service) {
 	s.googleAuthService = service
+}
+
+// SetOIDCAuthService injects the runtime-configurable generic OIDC verifier.
+func (s *Service) SetOIDCAuthService(service *oidcauthapp.Service) {
+	s.oidcAuthService = service
 }
 
 // SetGoogleRedirectStore injects the Redis-backed single-use state store used

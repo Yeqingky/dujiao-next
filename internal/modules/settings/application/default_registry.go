@@ -38,6 +38,11 @@ var defaultSettingRegistry = MustNewRegistry(
 		Effects:   []Effect{EffectInvalidatePublicConfigCache},
 	},
 	Definition{
+		Key:       constants.SettingKeyOIDCAuthConfig,
+		Normalize: settingssecurity.NormalizeOIDCAuthSettingJSON,
+		Effects:   []Effect{EffectInvalidatePublicConfigCache},
+	},
+	Definition{
 		Key: constants.SettingKeyNotificationCenterConfig,
 		Normalize: func(value jsonmap.JSON) jsonmap.JSON {
 			setting := settingsmessaging.DecodeNotificationCenterSetting(value, settingsmessaging.NotificationCenterDefaultSetting())

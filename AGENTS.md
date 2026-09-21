@@ -47,6 +47,12 @@ Supported providers are `none`, `image`, `turnstile`, and `cap`. Display the Cap
 - Tokens are single-use. Frontends must reset the widget after an attempted protected action.
 - CAPTCHA scene switches cover login, registration email codes, password-reset email codes, guest order creation, and gift-card redemption.
 
+## Generic OIDC
+
+The storefront supports one globally configured generic OIDC provider for login and account binding. The implementation uses Discovery, authorization code exchange, `state`, `nonce`, and PKCE by default. `client_secret_basic` and explicit `client_secret_post` modes are available for provider compatibility; `client_secret_post` is not the default. External identities are keyed by a short issuer-derived provider ID plus the OIDC `sub` claim. Email auto-linking requires `email_verified`; unverified claims never attach to an existing local account automatically.
+
+For Microsoft Entra ID, prefer a tenant-specific issuer such as `https://login.microsoftonline.com/<tenant-id>/v2.0` and register the exact `/auth/oidc/callback` storefront redirect URI.
+
 ## Development
 
 Run the API and SPAs separately for hot reload:

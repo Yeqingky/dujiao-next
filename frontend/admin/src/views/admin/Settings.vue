@@ -82,6 +82,7 @@ const tabs = computed(() => [
   { label: t('admin.settings.tabs.captcha'), value: 'captcha' },
   { label: t('admin.settings.tabs.telegram'), value: 'telegram' },
   { label: t('admin.settings.tabs.google'), value: 'google' },
+  { label: t('admin.settings.tabs.oidc'), value: 'oidc' },
   { label: t('admin.settings.tabs.dashboard'), value: 'dashboard' },
   { label: t('admin.settings.tabs.upstreamSync'), value: 'upstream_sync' },
 ])
@@ -295,6 +296,19 @@ const googleForm = reactive({
   client_id: '',
 })
 
+const oidcForm = reactive({
+  enabled: false,
+  provider_name: 'OIDC',
+  issuer_url: '',
+  client_id: '',
+  client_secret: '',
+  has_client_secret: false,
+  redirect_uri: '',
+  client_auth_method: 'none',
+  use_pkce: true,
+  scopes: 'openid profile email',
+})
+
 const createOrderEmailLocalizedTemplate = () => ({ subject: '', body: '' })
 const createOrderEmailSceneTemplate = () => ({
   'zh-CN': createOrderEmailLocalizedTemplate(),
@@ -378,13 +392,14 @@ const notifyErrorIfNeeded = (err: unknown, fallback: string) => {
 const fetchSettings = async () => {
   loading.value = true
   try {
-    const [siteRes, orderRes, smtpRes, captchaRes, telegramRes, googleRes, dashboardRes, registrationRes, orderEmailTmplRes] = await Promise.all([
+    const [siteRes, orderRes, smtpRes, captchaRes, telegramRes, googleRes, oidcRes, dashboardRes, registrationRes, orderEmailTmplRes] = await Promise.all([
       adminAPI.getSettings({ key: 'site_config' }),
       adminAPI.getSettings({ key: 'order_config' }),
       adminAPI.getSMTPSettings(),
       adminAPI.getCaptchaSettings(),
       adminAPI.getTelegramAuthSettings(),
       adminAPI.getGoogleAuthSettings(),
+      adminAPI.getOIDCAuthSettings(),
       adminAPI.getSettings({ key: 'dashboard_config' }),
       adminAPI.getSettings({ key: 'registration_config' }),
       adminAPI.getOrderEmailTemplateSettings(),
@@ -550,6 +565,20 @@ const fetchSettings = async () => {
       const google = googleRes.data.data as Record<string, unknown>
       googleForm.enabled = !!google.enabled
       googleForm.client_id = String(google.client_id || '')
+    }
+
+    if (oidcRes.data && oidcRes.data.data) {
+      const oidc = oidcRes.data.data as Record<string, unknown>
+      oidcForm.enabled = !!oidc.enabled
+      oidcForm.provider_name = String(oidc.provider_name || 'OIDC')
+      oidcForm.issuer_url = String(oidc.issuer_url || '')
+      oidcForm.client_id = String(oidc.client_id || '')
+      oidcForm.client_secret = ''
+      oidcForm.has_client_secret = !!oidc.has_client_secret
+      oidcForm.redirect_uri = String(oidc.redirect_uri || '')
+      oidcForm.client_auth_method = String(oidc.client_auth_method || 'none')
+      oidcForm.use_pkce = oidc.use_pkce !== false
+      oidcForm.scopes = String(oidc.scopes || 'openid profile email')
     }
 
     if (dashboardRes.data && dashboardRes.data.data) {
@@ -741,6 +770,34 @@ const saveGoogleAuthSettings = async () => {
   googleForm.client_id = String(data?.client_id || '')
 }
 
+const saveOIDCAuthSettings = async () => {
+  const payload: Record<string, unknown> = {
+    enabled: oidcForm.enabled,
+    provider_name: oidcForm.provider_name.trim(),
+    issuer_url: oidcForm.issuer_url.trim(),
+    client_id: oidcForm.client_id.trim(),
+    redirect_uri: oidcForm.redirect_uri.trim(),
+    client_auth_method: oidcForm.client_auth_method,
+    use_pkce: oidcForm.use_pkce,
+    scopes: oidcForm.scopes.trim(),
+  }
+  if (oidcForm.client_secret.trim() !== '') {
+    payload.client_secret = oidcForm.client_secret.trim()
+  }
+  const res = await adminAPI.updateOIDCAuthSettings(payload)
+  const data = res.data?.data as Record<string, unknown> | undefined
+  oidcForm.enabled = !!data?.enabled
+  oidcForm.provider_name = String(data?.provider_name || oidcForm.provider_name)
+  oidcForm.issuer_url = String(data?.issuer_url || '')
+  oidcForm.client_id = String(data?.client_id || '')
+  oidcForm.client_secret = ''
+  oidcForm.has_client_secret = !!data?.has_client_secret
+  oidcForm.redirect_uri = String(data?.redirect_uri || '')
+  oidcForm.client_auth_method = String(data?.client_auth_method || 'none')
+  oidcForm.use_pkce = data?.use_pkce !== false
+  oidcForm.scopes = String(data?.scopes || 'openid profile email')
+}
+
 const saveDashboardSettings = async () => {
   const normalized = {
     accounting: {
@@ -804,6 +861,8 @@ const saveSettings = async () => {
       await saveTelegramAuthSettings()
     } else if (currentTab.value === 'google') {
       await saveGoogleAuthSettings()
+    } else if (currentTab.value === 'oidc') {
+      await saveOIDCAuthSettings()
     } else if (currentTab.value === 'dashboard') {
       await saveDashboardSettings()
     } else {
@@ -1495,6 +1554,71 @@ onMounted(() => {
               <p>{{ t('admin.settings.google.credentialHint') }}</p>
               <p class="mt-1">{{ t('admin.settings.google.originHint') }}</p>
               <p class="mt-1">{{ t('admin.settings.google.redirectHint') }}</p>
+            </div>
+          </div>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="oidc" :forceMount="true" v-show="currentTab === 'oidc'" class="space-y-6 mt-0">
+        <div class="rounded-xl border border-border bg-card">
+          <div class="border-b border-border bg-muted/40 px-6 py-4">
+            <h2 class="text-lg font-semibold">{{ t('admin.settings.oidc.title') }}</h2>
+            <p class="mt-1 text-xs text-muted-foreground">{{ t('admin.settings.oidc.subtitle') }}</p>
+          </div>
+
+          <div class="space-y-6 p-6">
+            <div class="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3 sm:flex-row sm:items-center">
+              <Switch id="oidc-auth-enabled" v-model="oidcForm.enabled" />
+              <Label for="oidc-auth-enabled" class="text-sm font-medium">{{ t('admin.settings.oidc.enabled') }}</Label>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div class="space-y-2">
+                <label class="text-xs font-medium text-muted-foreground">{{ t('admin.settings.oidc.providerName') }}</label>
+                <Input v-model="oidcForm.provider_name" :placeholder="t('admin.settings.oidc.providerNamePlaceholder')" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-medium text-muted-foreground">{{ t('admin.settings.oidc.issuerURL') }}</label>
+                <Input v-model="oidcForm.issuer_url" :placeholder="t('admin.settings.oidc.issuerURLPlaceholder')" />
+                <p class="text-xs text-muted-foreground">{{ t('admin.settings.oidc.issuerURLHint') }}</p>
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-medium text-muted-foreground">{{ t('admin.settings.oidc.clientID') }}</label>
+                <Input v-model="oidcForm.client_id" :placeholder="t('admin.settings.oidc.clientIDPlaceholder')" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-medium text-muted-foreground">{{ t('admin.settings.oidc.clientSecret') }}</label>
+                <Input v-model="oidcForm.client_secret" type="password" :placeholder="t('admin.settings.oidc.clientSecretPlaceholder')" />
+                <p class="text-xs text-muted-foreground" v-if="oidcForm.has_client_secret">{{ t('admin.settings.oidc.clientSecretKeep') }}</p>
+              </div>
+              <div class="space-y-2 md:col-span-2">
+                <label class="text-xs font-medium text-muted-foreground">{{ t('admin.settings.oidc.redirectURI') }}</label>
+                <Input v-model="oidcForm.redirect_uri" :placeholder="t('admin.settings.oidc.redirectURIPlaceholder')" />
+                <p class="text-xs text-muted-foreground">{{ t('admin.settings.oidc.redirectURIHint') }}</p>
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-medium text-muted-foreground">{{ t('admin.settings.oidc.clientAuthMethod') }}</label>
+                <Select v-model="oidcForm.client_auth_method">
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{{ t('admin.settings.oidc.authNone') }}</SelectItem>
+                    <SelectItem value="client_secret_basic">{{ t('admin.settings.oidc.authBasic') }}</SelectItem>
+                    <SelectItem value="client_secret_post">{{ t('admin.settings.oidc.authPost') }}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div class="flex items-center gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3">
+                <Switch id="oidc-use-pkce" v-model="oidcForm.use_pkce" />
+                <div>
+                  <Label for="oidc-use-pkce" class="text-sm font-medium">{{ t('admin.settings.oidc.usePKCE') }}</Label>
+                  <p class="text-xs text-muted-foreground">{{ t('admin.settings.oidc.usePKCEHint') }}</p>
+                </div>
+              </div>
+              <div class="space-y-2 md:col-span-2">
+                <label class="text-xs font-medium text-muted-foreground">{{ t('admin.settings.oidc.scopes') }}</label>
+                <Input v-model="oidcForm.scopes" :placeholder="t('admin.settings.oidc.scopesPlaceholder')" />
+                <p class="text-xs text-muted-foreground">{{ t('admin.settings.oidc.scopesHint') }}</p>
+              </div>
             </div>
           </div>
         </div>

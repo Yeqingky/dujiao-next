@@ -52,8 +52,12 @@ export function useLogin() {
     route.query.google2fa,
     userAuthStore.challengeToken,
   )
+  const resumeOIDC2FAOnMount = shouldResumeGoogleRedirect2FA(
+    route.query.oidc2fa,
+    userAuthStore.challengeToken,
+  )
   const step = ref<'password' | 'totp'>(
-    resumeGoogleRedirect2FAOnMount ? 'totp' : 'password',
+    resumeGoogleRedirect2FAOnMount || resumeOIDC2FAOnMount ? 'totp' : 'password',
   )
   const totpMode = ref<'code' | 'recovery'>('code')
   const totpCode = ref('')
@@ -92,6 +96,9 @@ export function useLogin() {
   const isWidgetMode = computed(() => telegramLoginMode.value === 'widget' || (telegramLoginMode.value === '' && telegramEnabled.value))
   const googleConfig = computed(() => appStore.config?.google_auth || null)
   const googleClientID = computed(() => String(googleConfig.value?.client_id || '').trim())
+  const oidcConfig = computed(() => appStore.config?.oidc_auth || null)
+  const oidcProviderName = computed(() => String(oidcConfig.value?.provider_name || 'OIDC').trim() || 'OIDC')
+  const oidcEnabled = computed(() => !!oidcConfig.value?.enabled && !isTelegramMiniApp.value)
   const googleEnabled = computed(() => !!googleConfig.value?.enabled && googleClientID.value !== '')
   const googleButtonLocale = computed(() => String(appStore.locale || '').trim())
   const googleIdentityUXMode = detectGoogleIdentityUXMode()
@@ -117,6 +124,7 @@ export function useLogin() {
     showTelegramOidc.value,
     showMiniAppLoginHint.value,
     showGoogleLogin.value,
+    oidcEnabled.value,
   ))
   const telegramMiniAppEntryLink = computed(() => buildTelegramMiniAppEntryLink(telegramBotUsername.value, telegramMiniAppURL.value))
   const showTelegramMiniAppEntry = computed(() => !isTelegramMiniApp.value && telegramMiniAppEntryLink.value !== '')
@@ -407,6 +415,28 @@ export function useLogin() {
     }
   }
 
+  const startOIDC = async () => {
+    error.value = ''
+    try {
+      sessionStorage.setItem('oidc_intent', 'login')
+      const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''
+      if (redirect) {
+        sessionStorage.setItem('oidc_redirect', redirect)
+      } else {
+        sessionStorage.removeItem('oidc_redirect')
+      }
+      const res = await userAuthAPI.oidcStart()
+      const url = String(res?.data?.data?.auth_url || '')
+      if (!url) {
+        error.value = t('auth.login.oidcLoginFailed')
+        return
+      }
+      window.location.href = url
+    } catch (err: any) {
+      error.value = err?.message || t('auth.login.oidcLoginFailed')
+    }
+  }
+
   const startTelegramOidc = async () => {
     error.value = ''
     try {
@@ -552,6 +582,9 @@ export function useLogin() {
     googleRedirectLoginURI,
     prepareGoogleRedirectLogin,
     showGoogleLogin,
+    oidcProviderName,
+    oidcEnabled,
+    startOIDC,
     showThirdPartyLogin,
     handleGoogleCredential,
     handleGoogleScriptError,

@@ -218,6 +218,29 @@ cd frontend/admin && pnpm install && pnpm run dev   # :5174
 
 两个开发服务器都会将 `/api`、`/uploads`、`/sitemap.xml` 和 `/robots.txt` 代理到 `localhost:8080`。生产环境中所有内容使用同源，因此这些代理只用于开发。
 
+## 通用 OIDC 登录
+
+项目支持配置一个全局 OIDC Provider，用于用户登录和账号绑定。后台设置位于 **通用 OIDC 登录**，支持以下模式：
+
+- `PKCE + none`：公共客户端，默认使用 PKCE；
+- `PKCE + client_secret_basic`：服务端 Web 应用推荐模式；
+- 关闭 PKCE 并使用 `client_secret_basic`：兼容不支持 PKCE 的旧 Provider；
+- `client_secret_post`：仅用于特殊兼容场景，不建议默认使用。
+
+配置必须包含 Issuer URL、Client ID、回调地址和 `openid` Scope。服务端会通过 OIDC Discovery 获取授权端点、令牌端点和 JWKS，并校验 `state`、`nonce`、issuer、audience、签名和过期时间。Microsoft Entra ID 建议使用租户专属 Issuer，例如：
+
+```text
+https://login.microsoftonline.com/<tenant-id>/v2.0
+```
+
+回调地址必须精确登记为：
+
+```text
+https://你的商城域名/auth/oidc/callback
+```
+
+外部身份使用 `iss + sub` 标识。未验证的邮箱不会自动关联已有本地账号。
+
 ## 可选的 Cap CAPTCHA
 
 Cap 作为独立服务部署。请按照 [Cap Standalone 指南](https://trycap.dev/guide/standalone/) 运行带有 Valkey/Redis 的 Cap 容器，通过 HTTPS 域名对外提供服务，并创建 site key。配置 Cap 的 `CORS_ORIGIN`，允许用户商城和管理后台的来源访问。

@@ -72,6 +72,17 @@ type GoogleAuthFallback struct {
 	ClientID string
 }
 
+// OIDCAuthPublic 通用 OIDC 登录公开配置端口。
+type OIDCAuthPublic interface {
+	PublicConfig() map[string]interface{}
+}
+
+// OIDCAuthFallback 无 OIDCAuthService 时的配置回退。
+type OIDCAuthFallback struct {
+	Enabled      bool
+	ProviderName string
+}
+
 // ResellerOverlay 分销站配置叠加端口。
 type ResellerOverlay interface {
 	ApplyPublicConfigOverlay(ctx context.Context, tenant reseller.TenantContext, base map[string]interface{}) (map[string]interface{}, error)
@@ -87,6 +98,8 @@ type Handler struct {
 	fallback       TelegramAuthFallback
 	google         GoogleAuthPublic
 	googleFallback GoogleAuthFallback
+	oidc           OIDCAuthPublic
+	oidcFallback   OIDCAuthFallback
 	overlay        ResellerOverlay
 }
 
@@ -99,6 +112,8 @@ func NewHandler(
 	fallback TelegramAuthFallback,
 	google GoogleAuthPublic,
 	googleFallback GoogleAuthFallback,
+	oidc OIDCAuthPublic,
+	oidcFallback OIDCAuthFallback,
 	overlay ResellerOverlay,
 ) *Handler {
 	if cache == nil {
@@ -119,6 +134,8 @@ func NewHandler(
 		fallback:       fallback,
 		google:         google,
 		googleFallback: googleFallback,
+		oidc:           oidc,
+		oidcFallback:   oidcFallback,
 		overlay:        overlay,
 	}
 }
@@ -191,6 +208,7 @@ func (h *Handler) GetConfig(c *gin.Context) {
 	data["telegram_auth"] = telegramAuthConfig
 
 	data["google_auth"] = resolveGoogleAuthPublicConfig(h.google, h.googleFallback)
+	data["oidc_auth"] = resolveOIDCAuthPublicConfig(h.oidc, h.oidcFallback)
 
 	affiliateSetting, err := h.settings.GetAffiliateSettingMap()
 	if err != nil {
@@ -259,5 +277,22 @@ func resolveGoogleAuthPublicConfig(source GoogleAuthPublic, fallback GoogleAuthF
 	return map[string]interface{}{
 		"enabled":   enabled && clientID != "",
 		"client_id": clientID,
+	}
+}
+
+func resolveOIDCAuthPublicConfig(source OIDCAuthPublic, fallback OIDCAuthFallback) map[string]interface{} {
+	enabled := fallback.Enabled
+	providerName := strings.TrimSpace(fallback.ProviderName)
+	if source != nil {
+		publicOIDC := source.PublicConfig()
+		enabled, _ = publicOIDC["enabled"].(bool)
+		providerName = strings.TrimSpace(stringValue(publicOIDC["provider_name"]))
+	}
+	if providerName == "" {
+		providerName = "OIDC"
+	}
+	return map[string]interface{}{
+		"enabled":       enabled,
+		"provider_name": providerName,
 	}
 }

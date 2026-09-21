@@ -251,6 +251,38 @@ func (s *Service) PatchGoogleAuthSetting(defaultCfg config.GoogleAuthConfig, pat
 	return next, nil
 }
 
+// GetOIDCAuthSetting 获取通用 OIDC 登录配置。
+func (s *Service) GetOIDCAuthSetting(defaultCfg config.OIDCAuthConfig) (settingssecurity.OIDCAuthSetting, error) {
+	fallback := settingssecurity.DefaultOIDCAuthSetting(defaultCfg)
+	if s == nil {
+		return fallback, nil
+	}
+	value, err := s.GetByKey(constants.SettingKeyOIDCAuthConfig)
+	if err != nil {
+		return fallback, err
+	}
+	if value == nil {
+		return fallback, nil
+	}
+	return settingssecurity.DecodeOIDCAuthSetting(value, fallback), nil
+}
+
+// PatchOIDCAuthSetting 更新通用 OIDC 登录配置。
+func (s *Service) PatchOIDCAuthSetting(defaultCfg config.OIDCAuthConfig, patch settingssecurity.OIDCAuthSettingPatch) (settingssecurity.OIDCAuthSetting, error) {
+	current, err := s.GetOIDCAuthSetting(defaultCfg)
+	if err != nil {
+		return settingssecurity.OIDCAuthSetting{}, err
+	}
+	next := settingssecurity.NormalizeOIDCAuthSetting(settingssecurity.ApplyOIDCAuthSettingPatch(current, patch))
+	if err := settingssecurity.ValidateOIDCAuthSetting(next); err != nil {
+		return settingssecurity.OIDCAuthSetting{}, err
+	}
+	if _, err := s.Update(constants.SettingKeyOIDCAuthConfig, map[string]interface{}(settingssecurity.EncodeOIDCAuthSetting(next))); err != nil {
+		return settingssecurity.OIDCAuthSetting{}, err
+	}
+	return next, nil
+}
+
 // GetOrderEmailTemplateSetting 获取订单邮件模板配置（优先 settings，空时回退默认）。
 func (s *Service) GetOrderEmailTemplateSetting() (settingsmessaging.OrderEmailTemplateSetting, error) {
 	fallback := settingsmessaging.DefaultOrderEmailTemplateSetting()

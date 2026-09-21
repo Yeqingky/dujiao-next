@@ -4,6 +4,7 @@ import (
 	"github.com/dujiao-next/internal/authz"
 	catalogproductbootstrap "github.com/dujiao-next/internal/bootstrap/catalogproduct"
 	mailbrandwiring "github.com/dujiao-next/internal/bootstrap/mailbrand"
+	oidcauthcache "github.com/dujiao-next/internal/bootstrap/oidcauthcache"
 	telegramauthcache "github.com/dujiao-next/internal/bootstrap/telegramauthcache"
 	"github.com/dujiao-next/internal/cache"
 	"github.com/dujiao-next/internal/logger"
@@ -15,6 +16,7 @@ import (
 	adminauthapp "github.com/dujiao-next/internal/modules/identity/adminauth/application"
 	admintotpapp "github.com/dujiao-next/internal/modules/identity/adminauth/totp/application"
 	googleauthapp "github.com/dujiao-next/internal/modules/identity/googleauth/application"
+	oidcauthapp "github.com/dujiao-next/internal/modules/identity/oidcauth/application"
 	telegramauthapp "github.com/dujiao-next/internal/modules/identity/telegramauth/application"
 	userauthapp "github.com/dujiao-next/internal/modules/identity/userauth/application"
 	userauthcachestore "github.com/dujiao-next/internal/modules/identity/userauth/infrastructure/cachestore"
@@ -85,6 +87,18 @@ func (c *Container) loadRuntimeSettings() {
 		c.Config.TelegramAuth = settingssecurity.TelegramAuthSettingToConfig(telegramAuthSetting)
 	}
 
+	oidcAuthSetting, err := c.SettingService.GetOIDCAuthSetting(c.Config.OIDCAuth)
+	if err != nil {
+		c.Config.OIDCAuth.Enabled = false
+		logger.Warnw(
+			"provider_load_oidc_auth_setting_failed",
+			"error", err,
+			"fail_closed", true,
+		)
+	} else {
+		c.Config.OIDCAuth = settingssecurity.OIDCAuthSettingToConfig(oidcAuthSetting)
+	}
+
 	googleAuthSetting, err := c.SettingService.GetGoogleAuthSetting(c.Config.GoogleAuth)
 	if err != nil {
 		// Database-backed settings are the administrative source of truth. A
@@ -110,8 +124,10 @@ func (c *Container) initIdentityAndCatalogServices() {
 	c.UserTOTPService = usertotpapp.NewService(c.Config, c.UserStore, cache.Client())
 	c.TelegramAuthService = telegramauthapp.NewService(c.Config.TelegramAuth, telegramauthcache.Options()...)
 	c.GoogleAuthService = googleauthapp.NewService(c.Config.GoogleAuth)
+	c.OIDCAuthService = oidcauthapp.NewService(c.Config.OIDCAuth, oidcauthcache.Options()...)
 	c.UserAuthService = userauthapp.NewService(c.Config, c.UserStore, c.ExternalIdentityStore, c.EmailVerificationStore, c.SettingService, c.EmailSender, c.TelegramAuthService)
 	c.UserAuthService.SetGoogleAuthService(c.GoogleAuthService)
+	c.UserAuthService.SetOIDCAuthService(c.OIDCAuthService)
 	c.UserAuthService.SetGoogleRedirectStore(userauthcachestore.NewGoogleRedirectStore())
 	c.UserAuthService.SetAuthUnitOfWork(userauthgormstore.New(gormdb.DB))
 	c.UserAuthService.SetEmailBrandResolver(c.EmailBrandResolver)

@@ -23,6 +23,7 @@ type Config struct {
 	Bootstrap    BootstrapConfig    `mapstructure:"bootstrap"`
 	TelegramAuth TelegramAuthConfig `mapstructure:"telegram_auth"`
 	GoogleAuth   GoogleAuthConfig   `mapstructure:"google_auth"`
+	OIDCAuth     OIDCAuthConfig     `mapstructure:"oidc_auth"`
 	Redis        RedisConfig        `mapstructure:"redis"`
 	Queue        QueueConfig        `mapstructure:"queue"`
 	Upload       UploadConfig       `mapstructure:"upload"`
@@ -115,6 +116,19 @@ type TelegramAuthConfig struct {
 type GoogleAuthConfig struct {
 	Enabled  bool   `mapstructure:"enabled"`
 	ClientID string `mapstructure:"client_id"`
+}
+
+// OIDCAuthConfig 通用 OpenID Connect 登录配置。
+type OIDCAuthConfig struct {
+	Enabled          bool   `mapstructure:"enabled"`
+	ProviderName     string `mapstructure:"provider_name"`
+	IssuerURL        string `mapstructure:"issuer_url"`
+	ClientID         string `mapstructure:"client_id"`
+	ClientSecret     string `mapstructure:"client_secret"`
+	RedirectURI      string `mapstructure:"redirect_uri"`
+	ClientAuthMethod string `mapstructure:"client_auth_method"`
+	UsePKCE          bool   `mapstructure:"use_pkce"`
+	Scopes           string `mapstructure:"scopes"`
 }
 
 // RedisConfig Redis 配置
@@ -353,6 +367,15 @@ func Load() *Config {
 	viper.SetDefault("telegram_auth.replay_ttl_seconds", 300)
 	viper.SetDefault("google_auth.enabled", false)
 	viper.SetDefault("google_auth.client_id", "")
+	viper.SetDefault("oidc_auth.enabled", false)
+	viper.SetDefault("oidc_auth.provider_name", "OIDC")
+	viper.SetDefault("oidc_auth.issuer_url", "")
+	viper.SetDefault("oidc_auth.client_id", "")
+	viper.SetDefault("oidc_auth.client_secret", "")
+	viper.SetDefault("oidc_auth.redirect_uri", "")
+	viper.SetDefault("oidc_auth.client_auth_method", "none")
+	viper.SetDefault("oidc_auth.use_pkce", true)
+	viper.SetDefault("oidc_auth.scopes", "openid profile email")
 	viper.SetDefault("redis.enabled", true)
 	viper.SetDefault("redis.host", "127.0.0.1")
 	viper.SetDefault("redis.port", 6379)

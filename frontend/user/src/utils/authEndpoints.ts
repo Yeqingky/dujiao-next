@@ -9,6 +9,8 @@ const PUBLIC_AUTH_ENDPOINTS = new Set([
   '/auth/telegram/miniapp/login',
   '/auth/telegram/oidc/start',
   '/auth/telegram/oidc/callback',
+  '/auth/oidc/start',
+  '/auth/oidc/callback',
   '/auth/google/login',
   GOOGLE_REDIRECT_API_PATHS.loginIntent,
   GOOGLE_REDIRECT_API_PATHS.loginExchange,
