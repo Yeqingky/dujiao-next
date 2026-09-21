@@ -224,8 +224,12 @@ Full instructions: https://dujiao-next.com/deploy/
 Or with Docker:
 
 ```bash
-docker run -d -p 8080:8080 -v $PWD/config.yml:/app/config.yml:ro dujiaonext/dujiao-next:latest
+docker run -d -p 8080:8080 -v $PWD/config.yml:/app/config.yml:ro ghcr.io/Yeqingky/dujiao-next:latest
 ```
+
+Release images are published to GitHub Container Registry as multi-architecture
+`linux/amd64` and `linux/arm64` images. Available tags include the release tag,
+semantic version, and `latest`.
 
 ### Docker Compose
 
