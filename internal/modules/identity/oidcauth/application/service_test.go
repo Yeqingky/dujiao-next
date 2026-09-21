@@ -169,6 +169,7 @@ func TestOIDCLoginUsesPKCEAndVerifiesIDToken(t *testing.T) {
 
 func TestOIDCLoginSupportsClientSecretBasicWithoutPKCE(t *testing.T) {
 	fixture := newOIDCTestFixture(t)
+	fixture.clientSecret = "secret:with space+chars"
 	service, _ := newTestOIDCService(fixture, config.OIDCAuthConfig{
 		Enabled:          true,
 		IssuerURL:        fixture.server.URL,
@@ -194,12 +195,24 @@ func TestOIDCLoginSupportsClientSecretBasicWithoutPKCE(t *testing.T) {
 	authHeader := fixture.lastAuth
 	form := fixture.lastForm
 	fixture.mu.Unlock()
-	want := "Basic " + base64.StdEncoding.EncodeToString([]byte(fixture.clientID+":"+fixture.clientSecret))
+	want := "Basic " + base64.StdEncoding.EncodeToString([]byte(url.QueryEscape(fixture.clientID)+":"+url.QueryEscape(fixture.clientSecret)))
 	if authHeader != want {
 		t.Fatalf("authorization header = %q, want %q", authHeader, want)
 	}
 	if form.Get("code_verifier") != "" {
 		t.Fatal("unexpected code_verifier when PKCE is disabled")
+	}
+}
+
+func TestValidateAuthorizedPartyRequiresAZPForMultipleAudiences(t *testing.T) {
+	if validateAuthorizedParty(jwt.MapClaims{"aud": []interface{}{"oidc-client", "another-client"}}, "oidc-client") {
+		t.Fatal("multiple audiences without azp must be rejected")
+	}
+	if !validateAuthorizedParty(jwt.MapClaims{"aud": []interface{}{"oidc-client", "another-client"}, "azp": "oidc-client"}, "oidc-client") {
+		t.Fatal("matching azp should be accepted")
+	}
+	if validateAuthorizedParty(jwt.MapClaims{"aud": []interface{}{"oidc-client", "another-client"}, "azp": "another-client"}, "oidc-client") {
+		t.Fatal("mismatched azp must be rejected")
 	}
 }
 

@@ -351,7 +351,7 @@ func (s *Service) exchangeCode(ctx context.Context, cfg config.OIDCAuthConfig, r
 		form.Set("code_verifier", record.CodeVerifier)
 	}
 	if record.ClientAuthMethod == ClientAuthMethodBasic {
-		basic := base64.StdEncoding.EncodeToString([]byte(record.ClientID + ":" + cfg.ClientSecret))
+		basic := base64.StdEncoding.EncodeToString([]byte(url.QueryEscape(record.ClientID) + ":" + url.QueryEscape(cfg.ClientSecret)))
 		req, err := http.NewRequestWithContext(ctx, http.MethodPost, record.TokenEndpoint, strings.NewReader(form.Encode()))
 		if err != nil {
 			return nil, fmt.Errorf("%w: %v", ErrOIDCTokenExchange, err)
@@ -849,6 +849,28 @@ func numericClaim(value interface{}) (int64, bool) {
 
 func validateAuthorizedParty(claims jwt.MapClaims, clientID string) bool {
 	azp := stringClaim(claims, "azp")
+	audienceCount := 0
+	switch audience := claims["aud"].(type) {
+	case string:
+		if strings.TrimSpace(audience) != "" {
+			audienceCount = 1
+		}
+	case []interface{}:
+		for _, item := range audience {
+			if value, ok := item.(string); ok && strings.TrimSpace(value) != "" {
+				audienceCount++
+			}
+		}
+	case []string:
+		for _, value := range audience {
+			if strings.TrimSpace(value) != "" {
+				audienceCount++
+			}
+		}
+	}
+	if audienceCount > 1 {
+		return azp == clientID
+	}
 	return azp == "" || azp == clientID
 }
 
