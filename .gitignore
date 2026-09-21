@@ -2,12 +2,14 @@
 config.yml
 
 # Docker Compose runtime data and deployment secrets
-config/
-data/
+# 锚定到仓库根目录：未锚定的 config/ 会连带忽略 internal/config/，
+# data/、db/、logs/、uploads/ 同理，请勿改回不带前缀的写法。
+/config/
+/data/
 .idea
-db/
-uploads/
-logs/
+/db/
+/uploads/
+/logs/
 *.db
 *.log
 .env
