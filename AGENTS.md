@@ -84,4 +84,5 @@ go build -tags release,fullstack ./cmd/server
 - Update `README.md`, `config.yml.example`, and this file when commands, configuration, architecture, providers, or runtime behavior change.
 - Release builds use the repository `Dockerfile` or `.goreleaser.yaml` and embed both SPAs into one binary.
 - The release workflow publishes multi-architecture `linux/amd64` and `linux/arm64` images to `ghcr.io/<owner>/dujiao-next` using the Actions-provided `GITHUB_TOKEN`; do not add Docker Hub credentials.
+- The branch image workflow builds every branch push and tags images as `<branch>-<seven-character-commit-sha>` in GHCR.
 - Do not commit or push unless explicitly requested.

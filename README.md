@@ -231,6 +231,17 @@ Release images are published to GitHub Container Registry as multi-architecture
 `linux/amd64` and `linux/arm64` images. Available tags include the release tag,
 semantic version, and `latest`.
 
+### Branch Docker images
+
+Every branch push also builds and publishes a multi-architecture image tagged with the branch
+name and the seven-character commit hash. For example:
+
+```text
+ghcr.io/Yeqingky/dujiao-next:dev-cap-captcha-13876af
+```
+
+Branch slashes are replaced with hyphens in image tags.
+
 ### Docker Compose
 
 The root `docker-compose.yml` builds the application from the current checkout's `Dockerfile`
