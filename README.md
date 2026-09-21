@@ -244,13 +244,24 @@ Branch slashes are replaced with hyphens in image tags.
 
 ### Docker Compose
 
-The root `docker-compose.yml` builds the application from the current checkout's `Dockerfile`
-and starts PostgreSQL, Redis, the API, and both embedded SPAs:
+The root `docker-compose.yml` pulls the application image from GHCR and starts PostgreSQL,
+Redis, the API, and both embedded SPAs:
 
 ```bash
-docker compose up -d --build
+cp .env.example .env
+docker compose pull
+docker compose up -d
 docker compose ps
 docker compose logs -f dujiao-next
+```
+
+Set `TAG` in `.env` to select another published GHCR tag; it defaults to `latest`.
+
+For local source builds from the current checkout's `Dockerfile`, use
+`docker-compose-dev.yml`:
+
+```bash
+docker compose -f docker-compose-dev.yml up -d --build
 ```
 
 The application listens on `127.0.0.1:${APP_PORT}`. Runtime credentials are read from `.env`,

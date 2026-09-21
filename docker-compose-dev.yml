@@ -36,7 +36,11 @@ services:
       - dujiao-net
 
   dujiao-next:
-    image: ghcr.io/Yeqingky/dujiao-next:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_VERSION: ${TAG:-dev}
     container_name: dujiao-next
     restart: unless-stopped
     environment:

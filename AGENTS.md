@@ -40,15 +40,23 @@ cd frontend/user && pnpm install && pnpm run dev
 cd frontend/admin && pnpm install && pnpm run dev
 ```
 
-Use the root Compose stack for a production-style local environment:
+Use the root Compose stack with the published GHCR application image:
 
 ```bash
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 docker compose ps
 docker compose logs -f dujiao-next
 ```
 
-The Compose application image must be built from the repository `Dockerfile`. Do not replace its `build` block with a remote application image for development verification.
+For local source-build verification, use `docker-compose-dev.yml`:
+
+```bash
+docker compose -f docker-compose-dev.yml up -d --build
+```
+
+The default `docker-compose.yml` uses `ghcr.io/Yeqingky/dujiao-next:${TAG:-latest}`;
+keep the source-build configuration in `docker-compose-dev.yml`.
 
 Runtime files are intentionally untracked:
 
