@@ -7,7 +7,7 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     command: ["redis-server", "--dir", "/data", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
     volumes:
-      - ./data/redis:/data
+      - /opt/dujiao-next/data/redis:/data
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
@@ -26,7 +26,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - /opt/dujiao-next/data/postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -50,9 +50,9 @@ services:
     ports:
       - "127.0.0.1:${APP_PORT}:8080"
     volumes:
-      - ./config/config.yml:/app/config.yml:ro
-      - ./data/uploads:/app/uploads
-      - ./data/logs:/app/logs
+      - /opt/dujiao-next/config/config.yml:/app/config.yml:ro
+      - /opt/dujiao-next/data/uploads:/app/uploads
+      - /opt/dujiao-next/data/logs:/app/logs
     depends_on:
       redis:
         condition: service_healthy

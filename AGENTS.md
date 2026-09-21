@@ -66,7 +66,10 @@ Runtime files are intentionally untracked:
 - `config.yml`
 - `db/`, `uploads/`, and `logs/`
 
-Never commit credentials, database files, Redis state, uploads, or production logs.
+The development Compose file binds its configuration and runtime data from
+`/opt/dujiao-next/config/` and `/opt/dujiao-next/data/`; keep those host paths outside the
+repository. Never commit credentials, database files, Redis state, uploads, or production
+logs.
 
 ## Validation
 

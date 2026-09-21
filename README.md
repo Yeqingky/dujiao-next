@@ -264,11 +264,12 @@ For local source builds from the current checkout's `Dockerfile`, use
 docker compose -f docker-compose-dev.yml up -d --build
 ```
 
-The application listens on `127.0.0.1:${APP_PORT}`. Runtime credentials are read from `.env`,
-application configuration from `config/config.yml`, and persistent files from `data/`.
-These paths contain secrets or runtime data and are intentionally excluded from Git and the
-Docker build context. Stop the stack with `docker compose down`; bind-mounted data remains in
-`data/`.
+The application listens on `127.0.0.1:${APP_PORT}`. Runtime credentials are read from `.env`.
+The development Compose file reads its application configuration from
+`/opt/dujiao-next/config/config.yml` and stores persistent files under
+`/opt/dujiao-next/data/`. These paths contain secrets or runtime data and are intentionally
+excluded from Git and the Docker build context. Stop the stack with `docker compose down`;
+bind-mounted data remains under `/opt/dujiao-next/data/`.
 
 ## Quick Start (Develop)
 
