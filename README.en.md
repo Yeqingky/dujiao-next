@@ -262,6 +262,29 @@ Both dev servers proxy `/api`, `/uploads`, `/sitemap.xml`, and `/robots.txt` to
 `localhost:8080`. In production everything is same-origin, so these proxies are a
 development-only concern.
 
+## Generic OIDC Login
+
+The project supports one globally configured OIDC provider for user login and account binding. The admin settings support these modes:
+
+- `PKCE + none`: public client with PKCE, the default;
+- `PKCE + client_secret_basic`: recommended for server-side web applications;
+- client secret basic with PKCE disabled: compatibility mode for legacy providers;
+- `client_secret_post`: only for special compatibility cases and not recommended by default.
+
+Configure an Issuer URL, Client ID, redirect URI, and a scope set containing `openid`. The server uses OIDC Discovery to resolve authorization, token, and JWKS endpoints, and validates `state`, `nonce`, issuer, audience, signature, and expiration. For Microsoft Entra ID, prefer a tenant-specific issuer such as:
+
+```text
+https://login.microsoftonline.com/<tenant-id>/v2.0
+```
+
+Register this exact redirect URI with the provider:
+
+```text
+https://your-store-domain/auth/oidc/callback
+```
+
+External identities are keyed by `iss + sub`. Unverified email claims are never used to automatically link an existing local account.
+
 ## Optional Cap CAPTCHA
 
 Cap is deployed as a separate service. Follow the [Cap Standalone guide](https://trycap.dev/guide/standalone/)

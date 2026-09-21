@@ -28,6 +28,7 @@ var (
 	ErrGoogleRedirectTenantMismatch = errors.New("google redirect tenant mismatch")
 	ErrGoogleRedirectUserMismatch   = errors.New("google redirect user mismatch")
 	ErrGoogleRedirectFlowInvalid    = errors.New("google redirect flow invalid")
+	ErrOIDCAutoLinkForbidden        = errors.New("oidc email auto link forbidden")
 	ErrProfileEmpty                 = errors.New("profile empty")
 	ErrEmailChangeInvalid           = errors.New("email change invalid")
 	ErrEmailChangeExists            = errors.New("email change exists")

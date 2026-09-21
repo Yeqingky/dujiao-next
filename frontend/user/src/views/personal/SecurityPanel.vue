@@ -38,6 +38,15 @@
         @oidc-bind="startTelegramOidcBind"
       />
 
+      <OIDCBindingSection
+        :enabled="oidcEnabled"
+        :bound="oidcBound"
+        :provider-name="oidcProviderName"
+        :username="oidcBinding?.username || ''"
+        :loading="oidcBindingLoading"
+        @bind="startOIDCBind"
+      />
+
       <GoogleBindingSection
         :google-enabled="googleAuthorizationEnabled"
         :google-bound="googleBound"
@@ -123,6 +132,7 @@ import {
 } from '../../utils/googleRedirect'
 import TelegramBindingSection from '../../components/security/TelegramBindingSection.vue'
 import GoogleBindingSection from '../../components/security/GoogleBindingSection.vue'
+import OIDCBindingSection from '../../components/security/OIDCBindingSection.vue'
 import EmailChangeForm from '../../components/security/EmailChangeForm.vue'
 import LoginHistorySection from '../../components/security/LoginHistorySection.vue'
 import PasswordChangeForm from '../../components/security/PasswordChangeForm.vue'
@@ -172,6 +182,12 @@ const googleRedirectLoginURI = googleIdentityUXMode === 'redirect'
   : ''
 const googleRedirectAvailable = googleIdentityUXMode === 'popup' || googleRedirectLoginURI !== ''
 const googleAuthorizationEnabled = computed(() => googleEnabled.value && googleRedirectAvailable)
+const oidcConfig = computed(() => appStore.config?.oidc_auth || null)
+const oidcProviderName = computed(() => String(oidcConfig.value?.provider_name || 'OIDC').trim() || 'OIDC')
+const oidcEnabled = computed(() => !!oidcConfig.value?.enabled && !isTelegramMiniApp.value)
+const oidcBinding = ref<Record<string, any> | null>(null)
+const oidcBound = computed(() => oidcBinding.value?.bound === true)
+const oidcBindingLoading = ref(false)
 const isTelegramUrlEnv = isTelegramUrlEnvironment()
 const isTelegramMiniApp = computed(() => (telegramMiniAppStore.isMiniApp && telegramMiniAppStore.isReady) || isTelegramUrlEnv)
 const miniAppInitData = computed(() => String(telegramMiniAppStore.initData || '').trim())
@@ -214,6 +230,27 @@ const googleDisplayName = computed(() => {
 const openTelegramMiniAppEntry = () => {
   if (telegramMiniAppEntryLink.value === '') return
   openTelegramCompatibleLink(telegramMiniAppEntryLink.value)
+}
+
+const startOIDCBind = async () => {
+  if (oidcBound.value) return
+  oidcBindingLoading.value = true
+  try {
+    sessionStorage.setItem('oidc_intent', 'bind')
+    sessionStorage.removeItem('oidc_redirect')
+    const response = await userProfileAPI.oidcBindStart()
+    const authURL = String(response?.data?.data?.auth_url || '')
+    if (!authURL) {
+      throw new Error(t('personalCenter.security.oidcBindFailed'))
+    }
+    window.location.href = authURL
+  } catch (err: any) {
+    oidcBindingLoading.value = false
+    securityAlert.value = {
+      level: 'error',
+      message: err?.message || t('personalCenter.security.oidcBindFailed'),
+    }
+  }
 }
 
 const startCooldown = (kind: 'old' | 'new') => {
@@ -621,6 +658,14 @@ onMounted(async () => {
     userProfileStore.loadTelegramBinding(),
     userProfileStore.loadGoogleBinding(),
   ])
+  if (oidcEnabled.value) {
+    try {
+      const res = await userProfileAPI.getOIDCBinding()
+      oidcBinding.value = res.data?.data || null
+    } catch {
+      oidcBinding.value = null
+    }
+  }
   const win = window as Window & Record<string, any>
   win[telegramCallbackName] = handleTelegramBind
   renderTelegramWidget()
@@ -634,6 +679,21 @@ onMounted(async () => {
     await finishExternalIdentityMutation(t('personalCenter.security.googleBindSuccess'))
     const nextQuery = { ...route.query }
     delete nextQuery.googleBound
+    router.replace({ path: route.path, query: nextQuery })
+  } else if (route.query.oidcBound === '1') {
+    oidcBindingLoading.value = false
+    try {
+      const res = await userProfileAPI.getOIDCBinding()
+      oidcBinding.value = res.data?.data || null
+    } catch {
+      // Keep the success message if the optional refresh fails.
+    }
+    securityAlert.value = {
+      level: 'success',
+      message: t('personalCenter.security.oidcBindSuccess', { provider: oidcProviderName.value }),
+    }
+    const nextQuery = { ...route.query }
+    delete nextQuery.oidcBound
     router.replace({ path: route.path, query: nextQuery })
   }
 })

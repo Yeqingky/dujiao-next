@@ -398,6 +398,31 @@ func (a userTelegramOIDCTransportAdapter) BindTelegramOIDC(ctx context.Context, 
 	return identity, mapUserAuthTransportError(err)
 }
 
+// userOIDCTransportAdapter 将用户认证服务适配为通用 OIDC transport 端口。
+type userOIDCTransportAdapter struct {
+	auth *userauthapp.Service
+}
+
+func (a userOIDCTransportAdapter) GetOIDCBinding(userID uint) (*externalidentitydomain.Identity, error) {
+	identity, err := a.auth.GetOIDCBinding(userID)
+	return identity, mapUserAuthTransportError(err)
+}
+
+func (a userOIDCTransportAdapter) StartOIDC(input userauthapp.StartOIDCInput) (string, error) {
+	authURL, err := a.auth.StartOIDC(input)
+	return authURL, mapUserAuthTransportError(err)
+}
+
+func (a userOIDCTransportAdapter) LoginWithOIDC(input userauthapp.LoginWithOIDCInput) (*userauthapp.UserLoginResult, error) {
+	result, err := a.auth.LoginWithOIDC(input)
+	return result, mapUserAuthTransportError(err)
+}
+
+func (a userOIDCTransportAdapter) BindOIDC(input userauthapp.BindOIDCInput) (*externalidentitydomain.Identity, error) {
+	identity, err := a.auth.BindOIDC(input)
+	return identity, mapUserAuthTransportError(err)
+}
+
 // userLoginTransportAdapter 将设置/认证服务适配为注册登录 transport 端口。
 type userLoginTransportAdapter struct {
 	auth     *userauthapp.Service

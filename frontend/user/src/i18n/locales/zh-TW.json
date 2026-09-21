@@ -464,6 +464,13 @@
       "googleUnbindDisabledTip": "目前帳號沒有其他可用登入方式，暫不允許解除綁定 Google",
       "googleWidgetLoadFailed": "Google 授權元件載入失敗，請重新整理後重試",
       "googleInvalidCredential": "Google 回傳的登入憑據無效，請重試",
+      "oidcTitle": "{provider} 帳號",
+      "oidcSubtitle": "綁定後可直接使用 {provider} 登入站點",
+      "oidcBound": "已綁定帳號：{username}",
+      "oidcBindButton": "使用 {provider} 綁定",
+      "oidcBinding": "正在綁定 {provider} 帳號...",
+      "oidcBindSuccess": "{provider} 綁定成功",
+      "oidcBindFailed": "{provider} 綁定失敗，請稍後重試",
       "externalIdentityRefreshFailed": "操作已成功，但帳號綁定狀態重新整理失敗；為安全起見，解除綁定已暫時停用，請重新整理頁面後再試",
       "twofa": {
         "title": "兩步驟驗證 (2FA)",
@@ -1045,6 +1052,9 @@
       "googleLoginFailed": "Google 登入失敗，請稍後重試",
       "googleWidgetLoadFailed": "Google 登入元件載入失敗，請重新整理後重試",
       "googleInvalidCredential": "Google 回傳的登入憑據無效，請重試",
+      "oidcButton": "使用 {provider} 登入",
+      "oidcHint": "透過設定的 OIDC Provider 完成安全登入",
+      "oidcLoginFailed": "OIDC 登入失敗，請稍後重試",
       "totp": {
         "title": "兩步驟驗證",
         "subtitle": "請輸入驗證器中的 6 位動態碼以完成登入。",
@@ -1073,6 +1083,11 @@
       "processing": "正在完成 Google 授權…",
       "failed": "Google 授權失敗或已失效，請重試",
       "back": "返回"
+    },
+    "oidcCallback": {
+      "processing": "正在完成 OIDC 授權…",
+      "failed": "OIDC 授權失敗或已失效，請重試",
+      "backToLogin": "返回登入"
     },
     "register": {
       "title": "用戶註冊",

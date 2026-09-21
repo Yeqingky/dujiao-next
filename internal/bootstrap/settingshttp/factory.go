@@ -29,3 +29,9 @@ func NewGoogleAuthHandler(c *container.Container, cfg *config.Config) *settingst
 		settings: c.SettingService, cfg: cfg, googleAuth: c.GoogleAuthService,
 	})
 }
+
+func NewOIDCAuthHandler(c *container.Container, cfg *config.Config) *settingstransport.OIDCAuthHandler {
+	return settingstransport.NewOIDCAuthHandler(settingsOIDCAuthAdapter{
+		settings: c.SettingService, cfg: cfg, oidcAuth: c.OIDCAuthService,
+	})
+}

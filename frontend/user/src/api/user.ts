@@ -24,6 +24,10 @@ export const userProfileAPI = {
     telegramOidcBindStart: () => userApi.get('/me/telegram/oidc/start'),
     telegramOidcBindCallback: (data: { code: string; state: string }) =>
         userApi.post('/me/telegram/oidc/callback', data),
+    getOIDCBinding: () => userApi.get('/me/oidc'),
+    oidcBindStart: () => userApi.get('/me/oidc/start'),
+    oidcBindCallback: (data: { code: string; state: string }) =>
+        userApi.post('/me/oidc/callback', data),
     unbindTelegram: () => userApi.delete('/me/telegram/unbind'),
     getGoogleBinding: () => userApi.get('/me/google'),
     bindGoogle: (data: GoogleCredentialPayload) => userApi.post('/me/google/bind', data),

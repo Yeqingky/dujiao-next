@@ -18,12 +18,17 @@ func NewHandler(c *container.Container) *publicconfigtransport.Handler {
 	if c.GoogleAuthService != nil {
 		google = publicConfigGoogleAdapter{svc: c.GoogleAuthService}
 	}
+	var oidc publicconfigtransport.OIDCAuthPublic
+	if c.OIDCAuthService != nil {
+		oidc = publicConfigOIDCAdapter{svc: c.OIDCAuthService}
+	}
 	var overlay publicconfigtransport.ResellerOverlay
 	if c.ResellerSiteConfigService != nil {
 		overlay = publicConfigResellerOverlayAdapter{svc: c.ResellerSiteConfigService}
 	}
 	fallback := publicconfigtransport.TelegramAuthFallback{}
 	googleFallback := publicconfigtransport.GoogleAuthFallback{}
+	oidcFallback := publicconfigtransport.OIDCAuthFallback{}
 	if c.Config != nil {
 		fallback = publicconfigtransport.TelegramAuthFallback{
 			Enabled:     c.Config.TelegramAuth.Enabled,
@@ -33,6 +38,10 @@ func NewHandler(c *container.Container) *publicconfigtransport.Handler {
 		googleFallback = publicconfigtransport.GoogleAuthFallback{
 			Enabled:  c.Config.GoogleAuth.Enabled,
 			ClientID: c.Config.GoogleAuth.ClientID,
+		}
+		oidcFallback = publicconfigtransport.OIDCAuthFallback{
+			Enabled:      c.Config.OIDCAuth.Enabled,
+			ProviderName: c.Config.OIDCAuth.ProviderName,
 		}
 	}
 	return publicconfigtransport.NewHandler(
@@ -44,6 +53,8 @@ func NewHandler(c *container.Container) *publicconfigtransport.Handler {
 		fallback,
 		google,
 		googleFallback,
+		oidc,
+		oidcFallback,
 		overlay,
 	)
 }

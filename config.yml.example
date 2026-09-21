@@ -6,7 +6,7 @@
 # 本文件只保留启动阶段必须的配置。以下配置改由后台「系统设置」管理，保存在数据库 settings 表，
 # 数据库中的值始终优先于本文件的同名回退值，请勿在本文件重复配置：
 #   邮件 SMTP（smtp_config）、验证码（captcha_config）、Telegram 登录（telegram_auth_config）、
-#   Google 登录（google_auth_config）、订单设置（order_config）、上游同步间隔（upstream_sync_config）。
+#   Google 登录（google_auth_config）、通用 OIDC 登录（oidc_auth_config）、订单设置（order_config）、上游同步间隔（upstream_sync_config）。
 
 app:
   secret_key: your-secret-key-change-in-production-please # 务必修改，用于 AES-256 加密敏感数据

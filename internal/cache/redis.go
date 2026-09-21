@@ -128,6 +128,18 @@ func GetDelJSONRequired(ctx context.Context, key string, dest interface{}) (bool
 	return true, nil
 }
 
+// GetDelStringRequired 原子读取并删除一次性字符串状态。
+func GetDelStringRequired(ctx context.Context, key string) (string, error) {
+	if !Enabled() {
+		return "", ErrUnavailable
+	}
+	val, err := redisClient.GetDel(ctx, buildKey(key)).Result()
+	if errors.Is(err, redis.Nil) {
+		return "", nil
+	}
+	return val, err
+}
+
 // GetString 获取字符串缓存
 func GetString(ctx context.Context, key string) (string, error) {
 	if !Enabled() {

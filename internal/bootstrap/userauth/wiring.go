@@ -15,6 +15,7 @@ type Handlers struct {
 	Login        *userauthtransport.UserLoginHandler
 	TwoFA        *userauthtransport.User2FAHandler
 	TelegramOIDC *userauthtransport.UserTelegramOIDCHandler
+	OIDC         *userauthtransport.UserOIDCHandler
 	Telegram     *userauthtransport.UserTelegramHandler
 	Google       *userauthtransport.UserGoogleHandler
 }
@@ -55,6 +56,10 @@ func New(c *container.Container) Handlers {
 		),
 		TelegramOIDC: userauthtransport.NewUserTelegramOIDCHandler(
 			userTelegramOIDCTransportAdapter{auth: c.UserAuthService},
+			recorder,
+		),
+		OIDC: userauthtransport.NewUserOIDCHandler(
+			userOIDCTransportAdapter{auth: c.UserAuthService},
 			recorder,
 		),
 		Telegram: userauthtransport.NewUserTelegramHandler(

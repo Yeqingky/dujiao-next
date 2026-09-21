@@ -464,6 +464,13 @@
       "googleUnbindDisabledTip": "Google cannot be unbound until another sign-in method is available",
       "googleWidgetLoadFailed": "Failed to load Google authorization, please refresh and retry",
       "googleInvalidCredential": "Google returned an invalid credential, please try again",
+      "oidcTitle": "{provider} account",
+      "oidcSubtitle": "Link {provider} to sign in without a password",
+      "oidcBound": "Linked account: {username}",
+      "oidcBindButton": "Link with {provider}",
+      "oidcBinding": "Linking {provider} account...",
+      "oidcBindSuccess": "{provider} linked successfully",
+      "oidcBindFailed": "Failed to link {provider}, please try again later",
       "externalIdentityRefreshFailed": "The change succeeded, but the linked-account status could not be refreshed. Unbinding is temporarily disabled for safety; refresh the page and try again.",
       "twofa": {
         "title": "Two-Factor Authentication (2FA)",
@@ -1045,6 +1052,9 @@
       "googleLoginFailed": "Google sign-in failed, please try again later",
       "googleWidgetLoadFailed": "Failed to load Google sign-in, please refresh and retry",
       "googleInvalidCredential": "Google returned an invalid credential, please try again",
+      "oidcButton": "Sign in with {provider}",
+      "oidcHint": "Sign in securely with the configured OIDC provider",
+      "oidcLoginFailed": "OIDC sign-in failed, please try again later",
       "totp": {
         "title": "Two-Factor Authentication",
         "subtitle": "Enter the 6-digit code from your authenticator app to complete sign-in.",
@@ -1073,6 +1083,11 @@
       "processing": "Completing Google authorization…",
       "failed": "Google authorization failed or expired. Please try again.",
       "back": "Go back"
+    },
+    "oidcCallback": {
+      "processing": "Completing OIDC authorization…",
+      "failed": "OIDC authorization failed or expired. Please try again.",
+      "backToLogin": "Back to login"
     },
     "register": {
       "title": "User Registration",

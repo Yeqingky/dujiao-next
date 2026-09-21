@@ -139,6 +139,16 @@ export const useUserAuthStore = defineStore('user-auth', () => {
         }
     }
 
+    const oidcLogin = async (payload: { code: string; state: string }) => {
+        loading.value = true
+        try {
+            const response = await userAuthAPI.oidcCallback(payload)
+            return handleLoginResponse(response.data.data)
+        } finally {
+            loading.value = false
+        }
+    }
+
     const telegramMiniAppLogin = async (initData: string) => {
         loading.value = true
         try {
@@ -211,6 +221,7 @@ export const useUserAuthStore = defineStore('user-auth', () => {
         clearChallenge,
         telegramLogin,
         telegramOidcLogin,
+        oidcLogin,
         telegramMiniAppLogin,
         googleLogin,
         googleRedirectLogin,

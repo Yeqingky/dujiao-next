@@ -312,6 +312,8 @@ const (
 	LoginLogFailReasonTelegramConfig       = "telegram_config_invalid"
 	LoginLogFailReasonGoogleInvalid        = "google_invalid"
 	LoginLogFailReasonGoogleConfig         = "google_config_invalid"
+	LoginLogFailReasonOIDCInvalid          = "oidc_invalid"
+	LoginLogFailReasonOIDCConfig           = "oidc_config_invalid"
 	LoginLogFailReasonInternalError        = "internal_error"
 	LoginLogFailReasonInvalidTOTPCode      = "invalid_totp_code"
 	LoginLogFailReasonInvalidRecoveryCode  = "invalid_recovery_code"
@@ -326,6 +328,7 @@ const (
 	LoginLogSourceWeb      = "web"
 	LoginLogSourceTelegram = "telegram"
 	LoginLogSourceGoogle   = "google"
+	LoginLogSourceOIDC     = "oidc"
 )
 
 // 验证码用途常量
@@ -471,6 +474,7 @@ const (
 	SettingKeyCaptchaConfig            = "captcha_config"
 	SettingKeyTelegramAuthConfig       = "telegram_auth_config"
 	SettingKeyGoogleAuthConfig         = "google_auth_config"
+	SettingKeyOIDCAuthConfig           = "oidc_auth_config"
 	SettingKeyDashboardConfig          = "dashboard_config"
 	SettingKeyNotificationCenterConfig = "notification_center_config"
 	SettingKeyAffiliateConfig          = "affiliate_config"

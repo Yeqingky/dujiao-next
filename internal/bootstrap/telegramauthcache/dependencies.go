@@ -20,13 +20,12 @@ func setOIDCState(ctx context.Context, key string, value string, ttlSeconds int)
 }
 
 func takeOIDCState(ctx context.Context, key string) (string, bool, error) {
-	value, err := cache.GetString(ctx, key)
+	value, err := cache.GetDelStringRequired(ctx, key)
 	if err != nil {
 		return "", false, err
 	}
 	if value == "" {
 		return "", false, nil
 	}
-	_ = cache.Del(ctx, key)
 	return value, true, nil
 }
