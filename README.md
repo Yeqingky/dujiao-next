@@ -1,136 +1,100 @@
 # Dujiao-Next
 
-Dujiao-Next is a digital goods e-commerce platform. This repository contains the complete
-application: the Go backend, the customer storefront, and the admin panel.
+Dujiao-Next 是一个数字商品电商平台。本仓库包含完整应用，包括 Go 后端、用户商城和管理后台。
 
-## ❤️ Brand Partners (Sponsors)
+[English version](README.en.md)
 
-<table>
+## 技术栈
 
-<tr>
-<td width="180"><a href="https://www.vmrack.net/?ref_code=5iXmGUMf5f5"><img src="assets/partners/vmrack.jpeg" alt="CCTK.AI" width="150"></a></td>
-<td><a href="https://www.vmrack.net/?ref_code=5iXmGUMf5f5">Vmrack.com</a> 全球自动化云基础设施服务商 提供先进的云服务器、裸金属、CDN、媒体处理、对象存储和网络解决方案，助力企业轻松上云。
-⚡️官方合作闪购款，仅需76刀/年，三网优化线路，助力您业务起飞，<a href="https://www.vmrack.net/vps/flash-deals/2082383856451452928?ref_code=5iXmGUMf5f5">👉点我直达</a>
-</td>
-</tr>
-
-<tr>
-<td width="180"><a href="https://www.99cdn.com/"><img src="assets/partners/99cdn.jpg" alt="openmodel" width="150"></a></td>
-<td>99CDN 自建 CDN 平台，自主管理节点 · 智能流量调度 · 多级缓存加速。 <a href="https://www.99cdn.com/">99CDN</a> 是 EasyLink 旗下的商业化自建 CDN 与 DNS 智能调度平台，支持边缘缓存、分片缓存、多级回源、GTM 调度与边缘计算能力。</td>
-</tr>
-
-<tr>
-<td width="180"><a href="https://niub.me"><img src="assets/partners/niub.png" alt="openmodel" width="150"></a></td>
-<td> <a href="https://niub.me">NIUB — 数字服务，一站直达(DujiaoNext自营旗舰店)</a> 正在寻找更便捷的 AI 服务、社交账号或数字礼品卡？NIUB（niub.me）专注提供多种虚拟商品与数字服务，让不同类型的数字需求都能在一个站点完成选购。
-我们重视清晰的商品信息、明确的交付方式和负责任的售后支持。每件商品的账号类型、适用地区、有效期限、使用条件与售后范围，均以对应商品页面说明为准。
-访问 NIUB，探索更多数字服务与虚拟商品。</td>
-</tr>
-
-
-
-</table>
-
-## Tech Stack
-
-| Layer | Stack |
+| 层 | 技术栈 |
 | --- | --- |
-| Backend | Go 1.26 · Gin · GORM · SQLite / PostgreSQL |
-| Auth | JWT (separate admin / user realms) · Casbin RBAC · TOTP 2FA |
-| Async | asynq on Redis (optional — the server runs without it) |
-| Config | Viper (`config.yml`) |
-| Frontend | Vue 3 · Vite · TypeScript · Tailwind CSS v4 · pnpm 10 |
-| Admin UI | shadcn-vue / reka-ui |
+| 后端 | Go 1.26 · Gin · GORM · SQLite / PostgreSQL |
+| 鉴权 | JWT（管理员 / 用户独立 realm）· Casbin RBAC · TOTP 双因素认证 |
+| 异步任务 | 基于 Redis 的 asynq（可选，服务器不依赖它也能运行） |
+| 配置 | Viper（`config.yml`） |
+| 前端 | Vue 3 · Vite · TypeScript · Tailwind CSS v4 · pnpm 10 |
+| 管理后台 UI | shadcn-vue / reka-ui |
 
-## Repository Layout
+## 仓库结构
 
-```
+```text
 .
-├── cmd/server/               # entry point; also hosts the `admin` operator subcommands
+├── cmd/server/               # 入口，同时提供 `admin` 管理员操作子命令
 ├── internal/
-│   ├── app/                  # composition root
-│   │   ├── container/        # dependency-injection container
-│   │   ├── httpserver/       # Gin router, route groups, middleware
-│   │   └── jobs/             # asynq worker service and consumers
-│   ├── bootstrap/            # per-module wiring (adapters.go + wiring.go)
-│   ├── modules/              # 35 business modules — one vertical slice per domain
-│   ├── workflows/            # use cases that span several modules
-│   ├── platform/             # framework-facing infrastructure
-│   │   ├── database/gormdb/  # connection, auto-migration
-│   │   └── http/             # response envelope, Gin helpers
-│   ├── shared/               # dependency-free primitives (money, jsonmap, serial …)
-│   ├── authz/                # Casbin RBAC: policy model, built-in role seeds
-│   ├── web/                  # SPA embedding and mounting (build-tag gated)
-│   ├── architecture/         # architecture guard tests — no production code
+│   ├── app/                  # 组合根
+│   │   ├── container/        # 依赖注入容器
+│   │   ├── httpserver/       # Gin 路由、路由组和中间件
+│   │   └── jobs/             # asynq worker 服务和消费者
+│   ├── bootstrap/            # 各模块的装配（adapters.go + wiring.go）
+│   ├── modules/              # 35 个业务模块，每个领域一个垂直切片
+│   ├── workflows/            # 跨多个模块的用例
+│   ├── platform/             # 面向框架的基础设施
+│   │   ├── database/gormdb/  # 连接和自动迁移
+│   │   └── http/             # 响应封装和 Gin 辅助函数
+│   ├── shared/               # 无依赖的基础类型（money、jsonmap、serial 等）
+│   ├── authz/                # Casbin RBAC：策略模型和内置角色种子
+│   ├── web/                  # SPA 嵌入和挂载（由 build tag 控制）
+│   ├── architecture/         # 架构守卫测试，不包含生产代码
 │   ├── cache/ config/ constants/ crypto/ i18n/ logger/ queue/ version/
 │   └── admincmd/ htmltext/ persistence/ telegramidentity/ testkit/ upstream/
 ├── frontend/
-│   ├── admin/                # admin panel SPA        (dev :5174)
-│   └── user/                 # customer storefront SPA (dev :5173)
+│   ├── admin/                # 管理后台 SPA（开发端口 :5174）
+│   └── user/                 # 用户商城 SPA（开发端口 :5173）
 ├── config.yml.example
-├── Dockerfile                # single full-stack image
+├── Dockerfile                # 单体全栈镜像
 └── .goreleaser.yaml
 ```
 
-Runtime directories created on first start: `db/` (SQLite), `uploads/`, `logs/`.
+首次启动时会创建运行时目录：`db/`（SQLite）、`uploads/` 和 `logs/`。
 
-## Architecture
+## 架构
 
-A modular monolith. Each domain under `internal/modules/<name>/` is a vertical slice with its
-own layers:
+本项目采用模块化单体架构。`internal/modules/<name>/` 下的每个领域都是一个垂直切片，包含自己的分层结构：
 
-| Layer | Holds | May import |
+| 层 | 内容 | 可以导入 |
 | --- | --- | --- |
-| `domain/` | entities, value objects, business invariants | nothing from the other layers |
-| `application/` | use cases, port interfaces | `domain`, `contract` |
-| `infrastructure/` | GORM stores, gateways, queue adapters | `domain`, `application` ports |
-| `transport/` | HTTP handlers, presenters | `application` contracts |
-| `contract/` | port interfaces the application layer depends on, and the module's public surface for other modules | — |
+| `domain/` | 实体、值对象和业务不变量 | 其他层均不可导入 |
+| `application/` | 用例和端口接口 | `domain`、`contract` |
+| `infrastructure/` | GORM 存储、网关和队列适配器 | `domain`、`application` 的端口 |
+| `transport/` | HTTP 处理器和 presenter | `application` 层接口 |
+| `contract/` | application 层依赖的端口接口，以及模块对外公开的接口 | — |
 
-**These rules are enforced by tests, not convention.** `internal/architecture/` parses every
-import in the tree and fails the build on violations. The main ones:
+**这些规则由测试强制执行，而不是仅靠约定。**`internal/architecture/` 会解析整个代码树中的导入关系，并在发现违规时让构建失败。主要规则如下：
 
-- `domain` must not reach into `application`, `infrastructure`, or `transport`
-- `application` must not import Gin or asynq — no transport libraries in use cases
-- only a module's `infrastructure/gormstore` adapter may import GORM
-- `transport` depends on application contracts, never on concrete stores
-- `internal/shared` stays free of modules, GORM, Gin, and asynq
-- `internal/platform` must not depend on business modules
+- `domain` 不得依赖 `application`、`infrastructure` 或 `transport`
+- `application` 不得导入 Gin 或 asynq，用例中不得使用传输层库
+- 只有模块的 `infrastructure/gormstore` 适配器可以导入 GORM
+- `transport` 依赖 application 层接口，不得依赖具体存储实现
+- `internal/shared` 不得依赖业务模块、GORM、Gin 或 asynq
+- `internal/platform` 不得依赖业务模块
 
-Run them with the rest of the suite: `go test ./internal/architecture/...`
+运行完整测试套件时会一并运行架构测试：`go test ./internal/architecture/...`
 
-Modules never import each other's internals — they talk through `contract/`, and the wiring
-lives in `internal/bootstrap/<module>/`.
+模块之间不得导入彼此的内部实现，而应通过 `contract/` 通信；装配代码位于 `internal/bootstrap/<module>/`。
 
 ### RBAC
 
-Every `/api/v1/admin/...` route passes through Casbin. The permission catalog is generated
-from the live route table, but the **built-in roles are hand-maintained** in
-`internal/authz/bootstrap.go`. Adding an admin route without adding it to a role seed leaves
-that route reachable only by the super admin. `internal/app/httpserver/rbac_coverage_test.go`
-checks that every registered route is covered.
+每个 `/api/v1/admin/...` 路由都会经过 Casbin。权限目录由运行中的路由表生成，但**内置角色由人工维护**，位置是 `internal/authz/bootstrap.go`。新增管理路由时，如果没有将其添加到角色种子中，该路由将只能由超级管理员访问。`internal/app/httpserver/rbac_coverage_test.go` 会检查每个已注册路由是否都受到覆盖。
 
-## Build Tags
+## 构建标签
 
-| Tag | Effect |
+| Tag | 作用 |
 | --- | --- |
-| *(none)* | API only. No SPAs mounted — the default for local development. |
-| `fullstack` | Embeds `internal/web/dist/{admin,user}` into the binary via `go:embed`. |
-| `release` | Production behavior for outbound URL building. |
+| *(none)* | 仅 API，不挂载 SPA，是本地开发默认模式 |
+| `fullstack` | 通过 `go:embed` 将 `internal/web/dist/{admin,user}` 嵌入二进制 |
+| `release` | 用于构建出站 URL 的生产环境行为 |
 
-`go:embed all:dist/admin all:dist/user` requires **both** directories to exist, so a
-`fullstack` build fails outright if the frontends were not built first. A plain `go build`
-does not compile `embed_fullstack.go` — after touching `internal/web/`, verify with
-`go build -tags release,fullstack ./cmd/server`.
+`go:embed all:dist/admin all:dist/user` 要求两个目录都存在，因此必须先构建前端，否则 `fullstack` 构建会直接失败。普通 `go build` 不会编译 `embed_fullstack.go`；修改 `internal/web/` 后，请使用 `go build -tags release,fullstack ./cmd/server` 验证。
 
-## Run Modes
+## 运行模式
 
 ```bash
-./dujiao-next                 # all    — HTTP server + background worker (default)
-./dujiao-next -mode api       # HTTP server only
-./dujiao-next -mode worker    # background worker only
+./dujiao-next                 # all    — HTTP 服务 + 后台 worker（默认）
+./dujiao-next -mode api       # 仅 HTTP 服务
+./dujiao-next -mode worker    # 仅后台 worker
 ```
 
-Operator subcommands ship in the same binary, so a container needs no extra tooling:
+管理员子命令包含在同一个二进制文件中，因此容器无需额外工具：
 
 ```bash
 ./dujiao-next admin list-admins
@@ -138,38 +102,26 @@ Operator subcommands ship in the same binary, so a container needs no extra tool
 ./dujiao-next admin reset-2fa
 ```
 
-## Frontend Notes
+## 前端说明
 
-Two independent SPAs, both built with Vite and embedded at release time.
+两个 SPA 相互独立，发布时会构建并嵌入二进制文件。
 
-**Mount points.** The storefront is served at `/`; the admin panel at `web.admin_path`
-(default `/admin`). `/api`, `/uploads`, and `/health` are reserved prefixes — an unmatched
-path under them returns 404 instead of falling through to the SPA shell. Adding a new
-top-level backend prefix means updating `reservedPaths` in `internal/web/handler.go`.
+**挂载点。** 用户商城在 `/` 提供服务，管理后台位于 `web.admin_path`（默认 `/admin`）。`/api`、`/uploads` 和 `/health` 是保留前缀；这些前缀下未匹配的路径会返回 404，而不会回退到 SPA 外壳。如果新增顶层后端前缀，需要同步更新 `internal/web/handler.go` 中的 `reservedPaths`。
 
-**The admin base path is resolved at runtime, not at build time.** Since `web.admin_path` is
-configurable, `pnpm run build:fullstack` only injects a `<base href="__DJ_ADMIN_BASE__/">`
-placeholder, which the server rewrites on startup. Consequences for admin code:
+**管理后台基础路径在运行时解析，而不是构建时解析。**由于 `web.admin_path` 可配置，`pnpm run build:fullstack` 只会注入 `<base href="__DJ_ADMIN_BASE__/">` 占位符，服务器启动时再进行重写。管理后台代码需要注意：
 
-- native `<a href>` and `window.location` navigation must go through `adminUrl()` in
-  `src/utils/adminBase.ts`
-- `<router-link :to>` and `router.push()` must **not** — vue-router already carries the base,
-  and prefixing again yields `/admin/admin/...`
+- 原生 `<a href>` 和 `window.location` 导航必须使用 `src/utils/adminBase.ts` 中的 `adminUrl()`
+- `<router-link :to>` 和 `router.push()` 不应使用 `adminUrl()`；vue-router 已经携带基础路径，重复添加会产生 `/admin/admin/...`
 
-**Storefront templates.** The customer frontend ships more than one look, selected by the
-`storefront_template` site setting (`classic`, `vault`). Template pages live in
-`src/templates/<name>/` and fall back to `src/views/` when a page has no template-specific
-version; see `src/templates/registry.ts`. Append `?template=vault` to preview one locally.
+**用户商城模板。**用户前端提供多个外观，由站点设置 `storefront_template`（`classic`、`vault`）选择。模板页面位于 `src/templates/<name>/`；如果某个页面没有模板专属版本，则回退到 `src/views/`。详见 `src/templates/registry.ts`。本地预览时可追加 `?template=vault`。
 
-**i18n.** Both frontends and all API responses are localized — Simplified Chinese, Traditional
-Chinese, and English. Do not hard-code user-facing strings on either side.
+**i18n。**两个前端和所有 API 响应都支持本地化，包括简体中文、繁体中文和英语。任何一侧都不得硬编码面向用户的文本。
 
-## Quick Start (Deploy)
+## 快速开始（部署）
 
-### Official one-click installer (Ubuntu / Debian)
+### 官方一键安装器（Ubuntu / Debian）
 
-On a fresh Ubuntu 22.04+ or Debian 12+ server, download and run the official
-interactive installer:
+在全新的 Ubuntu 22.04+ 或 Debian 12+ 服务器上，下载并运行官方交互式安装器：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/dujiao-next/dujiao-next/main/scripts/dujiao-next-manager.sh \
@@ -177,15 +129,13 @@ curl -fsSL https://raw.githubusercontent.com/dujiao-next/dujiao-next/main/script
 sudo bash /tmp/dujiao-next-manager.sh install
 ```
 
-The installer deploys the release binary with systemd, an isolated local Redis,
-Nginx, SQLite, and a Let's Encrypt certificate. After installation, reopen the
-management menu with:
+安装器会通过 systemd 部署发布版二进制文件、隔离的本地 Redis、Nginx、SQLite 和 Let's Encrypt 证书。安装后可以重新打开管理菜单：
 
 ```bash
 sudo dujiao-next-manager
 ```
 
-Common automation-friendly commands are also available:
+也支持以下适合自动化的命令：
 
 ```bash
 sudo dujiao-next-manager status
@@ -199,53 +149,42 @@ sudo dujiao-next-manager admin-reset-2fa
 sudo dujiao-next-manager uninstall
 ```
 
-The first release supports a single non-wildcard domain on Ubuntu/Debian only.
-It does not adopt an existing manual installation. If SMTP is skipped, configure
-it in the admin panel before enabling email-verification registration. Application
-data lives in `/opt/dujiao-next`; installer state is stored in
-`/etc/dujiao-next/install-state.json`. TLS failures leave only the ACME challenge
-endpoint enabled, and `install` can be rerun after DNS or firewall repair. Safe
-uninstall creates and verifies a `0600` recovery archive under
-`/var/backups/dujiao-next` before deleting managed data.
+首个版本仅支持 Ubuntu/Debian 上的单个非通配符域名，不会接管已有的手动安装。如果跳过 SMTP，需要先在管理面板中配置 SMTP，再启用邮箱验证注册。应用数据位于 `/opt/dujiao-next`，安装器状态存储在 `/etc/dujiao-next/install-state.json`。TLS 失败时只会启用 ACME challenge endpoint；修复 DNS 或防火墙后可以重新运行 `install`。安全卸载会在删除受管数据前，于 `/var/backups/dujiao-next` 创建并验证权限为 `0600` 的恢复归档。
 
-### Manual binary installation
+### 手动安装二进制文件
 
-Download the latest `dujiao-next_*.tar.gz` from [Releases](https://github.com/dujiao-next/dujiao-next/releases):
+从 [Releases](https://github.com/dujiao-next/dujiao-next/releases) 下载最新的 `dujiao-next_*.tar.gz`：
 
 ```bash
 tar -xzf dujiao-next_*.tar.gz
 cp config.yml.example config.yml
-# edit config.yml: set jwt.secret, user_jwt.secret, and web.admin_path
+# 编辑 config.yml：设置 jwt.secret、user_jwt.secret 和 web.admin_path
 ./dujiao-next
 ```
 
-Full instructions: https://dujiao-next.com/deploy/
+完整说明见：https://dujiao-next.com/deploy/
 
-Or with Docker:
+也可以使用 Docker：
 
 ```bash
 docker run -d -p 8080:8080 -v $PWD/config.yml:/app/config.yml:ro ghcr.io/Yeqingky/dujiao-next:latest
 ```
 
-Release images are published to GitHub Container Registry as multi-architecture
-`linux/amd64` and `linux/arm64` images. Available tags include the release tag,
-semantic version, and `latest`.
+发布镜像发布到 GitHub Container Registry，提供多架构 `linux/amd64` 和 `linux/arm64` 镜像。可用标签包括发布标签、语义化版本和 `latest`。
 
-### Branch Docker images
+### 分支 Docker 镜像
 
-Every branch push also builds and publishes a multi-architecture image tagged with the branch
-name and the seven-character commit hash. For example:
+每次推送分支都会构建并发布多架构镜像，标签由分支名和 7 位 commit hash 组成。例如：
 
 ```text
 ghcr.io/Yeqingky/dujiao-next:dev-cap-captcha-13876af
 ```
 
-Branch slashes are replaced with hyphens in image tags.
+镜像标签中的分支斜杠会替换为连字符。
 
 ### Docker Compose
 
-The root `docker-compose.yml` pulls the application image from GHCR and starts PostgreSQL,
-Redis, the API, and both embedded SPAs:
+根目录的 `docker-compose.yml` 会从 GHCR 拉取应用镜像，并启动 PostgreSQL、Redis、API 以及两个嵌入式 SPA：
 
 ```bash
 cp .env.example .env
@@ -255,67 +194,53 @@ docker compose ps
 docker compose logs -f dujiao-next
 ```
 
-Set `TAG` in `.env` to select another published GHCR tag; it defaults to `latest`.
+在 `.env` 中设置 `TAG` 可以选择其他已发布的 GHCR 标签，默认值为 `latest`。
 
-For local source builds from the current checkout's `Dockerfile`, use
-`docker-compose-dev.yml`:
+如果要基于当前工作副本的 `Dockerfile` 构建本地源码，请使用 `docker-compose-dev.yml`：
 
 ```bash
 docker compose -f docker-compose-dev.yml up -d --build
 ```
 
-The application listens on `127.0.0.1:${APP_PORT}`. Runtime credentials are read from `.env`.
-The development Compose file reads its application configuration from
-`/opt/dujiao-next/config/config.yml` and stores persistent files under
-`/opt/dujiao-next/data/`. These paths contain secrets or runtime data and are intentionally
-excluded from Git and the Docker build context. Stop the stack with `docker compose down`;
-bind-mounted data remains under `/opt/dujiao-next/data/`.
+应用监听 `127.0.0.1:${APP_PORT}`。运行时凭据从 `.env` 读取。开发 Compose 文件从 `/opt/dujiao-next/config/config.yml` 读取应用配置，并将持久化文件存储在 `/opt/dujiao-next/data/` 下。这些路径包含敏感信息或运行时数据，会被有意排除在 Git 和 Docker 构建上下文之外。使用 `docker compose down` 停止服务；绑定挂载的数据仍保留在 `/opt/dujiao-next/data/` 下。
 
-## Quick Start (Develop)
+## 快速开始（开发）
 
-Run the backend and the two frontends separately for hot reload:
+分别运行后端和两个前端，以启用热重载：
 
 ```bash
-go mod tidy && go run ./cmd/server   # :8080 — API only, no SPAs mounted
+go mod tidy && go run ./cmd/server   # :8080 — 仅 API，不挂载 SPA
 
 cd frontend/user  && pnpm install && pnpm run dev   # :5173
 cd frontend/admin && pnpm install && pnpm run dev   # :5174
 ```
 
-Both dev servers proxy `/api`, `/uploads`, `/sitemap.xml`, and `/robots.txt` to
-`localhost:8080`. In production everything is same-origin, so these proxies are a
-development-only concern.
+两个开发服务器都会将 `/api`、`/uploads`、`/sitemap.xml` 和 `/robots.txt` 代理到 `localhost:8080`。生产环境中所有内容使用同源，因此这些代理只用于开发。
 
-## Optional Cap CAPTCHA
+## 可选的 Cap CAPTCHA
 
-Cap is deployed as a separate service. Follow the [Cap Standalone guide](https://trycap.dev/guide/standalone/)
-to run the Cap container with Valkey/Redis, expose it through an HTTPS hostname, and create a
-site key. Configure `CORS_ORIGIN` on Cap to allow the storefront and admin origins.
+Cap 作为独立服务部署。请按照 [Cap Standalone 指南](https://trycap.dev/guide/standalone/) 运行带有 Valkey/Redis 的 Cap 容器，通过 HTTPS 域名对外提供服务，并创建 site key。配置 Cap 的 `CORS_ORIGIN`，允许用户商城和管理后台的来源访问。
 
-In Dujiao-Next, open **Settings -> CAPTCHA**, select `Cap`, then configure:
+在 Dujiao-Next 中打开 **Settings -> CAPTCHA**，选择 `Cap`，然后配置：
 
-- **Server endpoint**: the public Cap base URL, for example `https://cap.example.com`;
-- **Site Key**: the public key created in the Cap dashboard;
-- **Site Secret Key**: the site key secret, not Cap's dashboard `ADMIN_KEY`.
+- **Server endpoint**：公开的 Cap 基础 URL，例如 `https://cap.example.com`；
+- **Site Key**：在 Cap 控制台创建的公开 key；
+- **Site Secret Key**：site key secret，不是 Cap 控制台的 `ADMIN_KEY`。
 
-The browser uses `https://cap.example.com/<site-key>/`; Dujiao-Next verifies the returned token
-server-side through Cap's `/siteverify` endpoint. The secret is never included in public config.
-The same values can be supplied through the `captcha.cap` section in `config.yml`.
+浏览器使用 `https://cap.example.com/<site-key>/`；Dujiao-Next 会通过 Cap 的 `/siteverify` endpoint 在服务端验证返回的 token。secret 不会包含在公开配置中。同样的值也可以通过 `config.yml` 中的 `captcha.cap` 部分提供。
 
-> Use `pnpm` via corepack. `pnpm --dir X` does not read the `packageManager` field of the
-> target directory and will pick the wrong version — `cd` into the package first.
+> 使用 corepack 提供的 `pnpm`。`pnpm --dir X` 不会读取目标目录的 `packageManager` 字段，可能选择错误的版本，因此请先 `cd` 到对应 package 目录。
 
-## Building the Full-Stack Binary
+## 构建全栈二进制文件
 
 ```bash
 goreleaser build --snapshot --single-target --clean
 ```
 
-This builds both frontends, embeds them, and compiles with `-tags fullstack` — the same path
-CI uses for releases. The manual equivalent:
+该命令会构建两个前端，将它们嵌入二进制文件，并使用 `-tags fullstack` 编译，与 CI 的发布路径一致。手动执行方式如下：
 
 ```bash
-(cd frontend/admin && pnpm run build:fullstack)   # injects the <base> placeholder
+(cd frontend/admin && pnpm run build:fullstack)   # 注入 <base> 占位符
 (cd frontend/user  && pnpm run build)
 rm -rf internal/web/dist && mkdir -p internal/web/dist
 cp -r frontend/admin/dist internal/web/dist/admin
@@ -323,32 +248,25 @@ cp -r frontend/user/dist  internal/web/dist/user
 go build -tags release,fullstack -o dujiao-next ./cmd/server
 ```
 
-Note that admin uses `build:fullstack`, not `build`. Plain `build` produces a bundle pinned to
-`/`, which silently breaks a custom `web.admin_path`.
+注意，管理后台使用 `build:fullstack` 而不是 `build`。普通 `build` 会生成固定到 `/` 的 bundle，在自定义 `web.admin_path` 时会静默失效。
 
-## Testing
+## 测试
 
 ```bash
-go test ./...                              # full suite
-go test ./internal/architecture/...        # dependency and layering guards
-go test ./internal/modules/order/...       # one module
+go test ./...                              # 完整测试套件
+go test ./internal/architecture/...        # 依赖和分层守卫
+go test ./internal/modules/order/...       # 单个模块
 
-cd frontend/user  && pnpm run build        # includes vue-tsc type checking
+cd frontend/user  && pnpm run build        # 包含 vue-tsc 类型检查
 cd frontend/admin && pnpm run build
 ```
 
-Health check endpoint: `GET /health`
+健康检查端点：`GET /health`
 
-## Notes on Data Access
+## 数据访问说明
 
-SQLite runs with `MaxOpenConns=1`. A store opens a transaction through
-`WithinTransaction(func(tx contract.Transaction) error)`, and every query inside the closure
-must go through that `tx` handle or a store bound to it via `WithTx(tx)`. Reaching for the
-global DB handle instead asks for a second connection that will never be granted, deadlocking
-the process — including indirectly, by calling a service that queries on its own. Read any
-settings you need *before* opening the transaction, and keep outbound HTTP calls (payment
-gateways and the like) outside it.
+SQLite 使用 `MaxOpenConns=1`。存储层通过 `WithinTransaction(func(tx contract.Transaction) error)` 开启事务，闭包中的每个查询都必须使用 `tx` 句柄，或使用 `WithTx(tx)` 绑定到该事务的存储层。重新使用全局 DB 句柄会请求第二个永远无法获得的连接，从而让进程死锁；即使是间接调用也一样，例如调用了自行查询的 service。请在打开事务前读取所需的设置，并将出站 HTTP 请求（例如支付网关请求）放在事务之外。
 
-## Online Documentation
+## 在线文档
 
 - https://dujiao-next.com
