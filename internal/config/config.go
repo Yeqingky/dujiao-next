@@ -369,6 +369,8 @@ func Load() *Config {
 		"default":  10,
 		"critical": 5,
 	})
+	// config.yml 不再提供该回退值（后台 upstream_sync_config 优先），保留默认值避免空字符串。
+	viper.SetDefault("queue.upstream_sync_interval", "5m")
 	viper.SetDefault("upload.max_size", 10485760)
 	viper.SetDefault("upload.allowed_types", []string{
 		"image/jpeg",

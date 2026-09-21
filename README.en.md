@@ -191,6 +191,7 @@ Download the latest `dujiao-next_*.tar.gz` from [Releases](https://github.com/du
 tar -xzf dujiao-next_*.tar.gz
 cp config.yml.example config.yml
 # edit config.yml: set jwt.secret, user_jwt.secret, and web.admin_path
+# config.yml only keeps settings required at startup; SMTP email, CAPTCHA, Telegram/Google login, order settings, and the upstream sync interval are configured in the admin panel
 ./dujiao-next
 ```
 
@@ -275,7 +276,8 @@ In Dujiao-Next, open **Settings -> CAPTCHA**, select `Cap`, then configure:
 
 The browser uses `https://cap.example.com/<site-key>/`; Dujiao-Next verifies the returned token
 server-side through Cap's `/siteverify` endpoint. The secret is never included in public config.
-The same values can be supplied through the `captcha.cap` section in `config.yml`.
+These values live only in the database-backed settings; `config.yml` no longer exposes a
+`captcha.cap` section, so do not duplicate them in two places.
 
 > Use `pnpm` via corepack. `pnpm --dir X` does not read the `packageManager` field of the
 > target directory and will pick the wrong version — `cd` into the package first.

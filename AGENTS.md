@@ -18,6 +18,23 @@ Each backend domain under `internal/modules/<module>/` is a vertical slice. Keep
 
 Both frontends must keep user-facing text in i18n resources. Storefront changes must account for both classic views and vault templates. Admin navigation must respect the runtime `web.admin_path` behavior documented in `README.md`.
 
+## Configuration
+
+`config.yml` keeps only what the process needs at startup: `app`, `server`, `log`, `database`, `jwt`, `user_jwt`, `bootstrap`, `redis`, the `queue` connection, `upload`, `cors`, `security`, `reseller`, and `web.admin_path`.
+
+Backend-managed settings live in the database `settings` table and always win over the same-named `config.yml` fallback. Configure them in the admin panel instead of editing the file:
+
+| Setting key | Admin panel |
+| --- | --- |
+| `smtp_config` | Settings -> SMTP |
+| `captcha_config` | Settings -> CAPTCHA |
+| `telegram_auth_config` | Settings -> Telegram |
+| `google_auth_config` | Settings -> Google |
+| `order_config` | Settings -> Basic (order section) |
+| `upstream_sync_config` | Settings -> Upstream Sync |
+
+Do not re-add these sections to `config.yml` or `config.yml.example`; a stored row silently shadows the file. `loadRuntimeSettings` in `internal/app/container/services_foundation.go` applies the override before dependent services are built, and a failed read of `google_auth_config` fails closed by disabling Google login.
+
 ## CAPTCHA
 
 Supported providers are `none`, `image`, `turnstile`, and `cap`. Display the Cap provider simply as `Cap` in all locales.

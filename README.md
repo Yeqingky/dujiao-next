@@ -159,6 +159,7 @@ sudo dujiao-next-manager uninstall
 tar -xzf dujiao-next_*.tar.gz
 cp config.yml.example config.yml
 # 编辑 config.yml：设置 jwt.secret、user_jwt.secret 和 web.admin_path
+# config.yml 只保留启动阶段必须的配置；邮箱 SMTP、验证码、Telegram/Google 登录、订单设置、上游同步间隔改在后台「系统设置」中配置
 ./dujiao-next
 ```
 
@@ -227,7 +228,7 @@ Cap 作为独立服务部署。请按照 [Cap Standalone 指南](https://trycap.
 - **Site Key**：在 Cap 控制台创建的公开 key；
 - **Site Secret Key**：site key secret，不是 Cap 控制台的 `ADMIN_KEY`。
 
-浏览器使用 `https://cap.example.com/<site-key>/`；Dujiao-Next 会通过 Cap 的 `/siteverify` endpoint 在服务端验证返回的 token。secret 不会包含在公开配置中。同样的值也可以通过 `config.yml` 中的 `captcha.cap` 部分提供。
+浏览器使用 `https://cap.example.com/<site-key>/`；Dujiao-Next 会通过 Cap 的 `/siteverify` endpoint 在服务端验证返回的 token。secret 不会包含在公开配置中。这些值只保存在数据库设置里，`config.yml` 不再提供 `captcha.cap`，请勿在两个位置重复填写。
 
 > 使用 corepack 提供的 `pnpm`。`pnpm --dir X` 不会读取目标目录的 `packageManager` 字段，可能选择错误的版本，因此请先 `cd` 到对应 package 目录。
 

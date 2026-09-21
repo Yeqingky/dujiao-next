@@ -2,6 +2,11 @@
 #
 # 首次启动前必须把下面三个占位密钥替换为彼此不同的强随机值，否则服务会拒绝启动。
 # 可分别执行三次：openssl rand -hex 32
+#
+# 本文件只保留启动阶段必须的配置。以下配置改由后台「系统设置」管理，保存在数据库 settings 表，
+# 数据库中的值始终优先于本文件的同名回退值，请勿在本文件重复配置：
+#   邮件 SMTP（smtp_config）、验证码（captcha_config）、Telegram 登录（telegram_auth_config）、
+#   Google 登录（google_auth_config）、订单设置（order_config）、上游同步间隔（upstream_sync_config）。
 
 app:
   secret_key: your-secret-key-change-in-production-please # 务必修改，用于 AES-256 加密敏感数据
@@ -47,31 +52,6 @@ bootstrap:
   default_admin_username: ""  # 首次初始化管理员用户名（可选）
   default_admin_password: ""  # 首次初始化管理员密码（建议生产配置）
 
-telegram_auth:
-  enabled: false
-  bot_username: ""  # Telegram Bot 用户名（不含 @）
-  bot_token: ""     # Telegram Bot Token（敏感）
-  # 新版 OIDC 登录（可选）：在 @BotFather → Bot Settings → Web Login 获取 Client Secret，
-  # 并把本商城域名 origin 与下面的回调地址都加入 Allowed URLs。
-  # 同时填写 client_secret + oidc_redirect_uri 后自动切换为新版 OIDC 登录；否则沿用旧版 Login Widget。
-  client_secret: ""        # OIDC Client Secret（敏感）
-  oidc_redirect_uri: ""    # 形如 https://你的商城域名/auth/telegram/callback
-  mini_app_url: ""  # Telegram Mini App 页面地址（需与 BotFather Web App URL 保持一致）
-  login_expire_seconds: 300
-  replay_ttl_seconds: 300
-
-google_auth:
-  enabled: false
-  # Google Identity Services Web Client ID。登录只校验 credential ID Token，
-  # 不需要 Client Secret，也不需要申请 Gmail API 权限。
-  # 请在 Google Cloud Console 为主站及每个白标域名分别登记：
-  # 1. Authorized JavaScript origin，例如 https://shop.example.com
-  # 2. Authorized redirect URI，例如
-  #    https://shop.example.com/api/v1/auth/google/redirect/callback
-  # 桌面与 Android 使用 popup/FedCM；iOS/iPadOS 使用 redirect form_post，
-  # 后者依赖已启用且可用的 Redis 7（一次性状态通过 GETDEL 消费）。
-  client_id: ""
-
 redis:
   enabled: true
   host: 127.0.0.1
@@ -90,7 +70,6 @@ queue:
   queues:
     default: 10
     critical: 5
-  upstream_sync_interval: "5m"  # 上游库存同步间隔（如 1m、5m、10m）
 
 upload:
   max_size: 10485760  # 最大上传文件大小（字节，默认 10MB）
@@ -142,42 +121,6 @@ security:
     require_lower: true
     require_number: true
     require_special: false
-
-email:
-  enabled: true
-  host: smtp.xxx.com
-  port: 465
-  username: your-username
-  password: your-password
-  from: your-email
-  from_name: your-name
-  use_tls: false
-  use_ssl: true
-  verify_code:
-    expire_minutes: 10
-    send_interval_seconds: 60
-    max_attempts: 5
-    length: 6
-
-captcha:
-  # none / image / turnstile / cap
-  provider: none
-  scenes:
-    login: false
-    register_send_code: false
-    reset_send_code: false
-    guest_create_order: false
-    gift_card_redeem: false
-  cap:
-    # Cap Standalone instance base URL, without the site key path.
-    endpoint: "https://cap.example.com"
-    site_key: ""
-    secret_key: ""
-    timeout_ms: 2000
-
-order:
-  payment_expire_minutes: 15
-  max_refund_days: 30
 
 reseller:
   enabled: false
